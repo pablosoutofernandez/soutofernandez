@@ -4,9 +4,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.Button;
 import javafx.fxml.Initializable;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.clase.modelo.Paciente;
@@ -24,6 +27,10 @@ public class PacienteController implements Initializable {
     private ComboBox<String> cmbpac, locpac;
     @FXML
     private Button btnguardarpac, btnmodpac, btndelpac;
+    @FXML 
+    private TableView<Paciente> tablaPacientes;
+    @FXML 
+    private TableColumn<Paciente, String> coldnipac, colnompac, colapepac, coltelpac, colpropac, colmunipac;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -132,4 +139,11 @@ public class PacienteController implements Initializable {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    @FXML 
+     private void cargarPacientes(){
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        List<Paciente> pacientes = dao.cargarPacientes();
+        tablaPacientes.getItems().setAll(pacientes);
+     }
 }
