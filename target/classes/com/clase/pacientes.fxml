@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="557.0" prefWidth="1023.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.PacienteController">
+   <children>
+      <Label alignment="TOP_CENTER" prefHeight="37.0" prefWidth="130.0" text="Xestión Pacientes">
+         <padding>
+            <Insets top="20.0" />
+         </padding>
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+
+      <!-- Fila 1: DNI, Primer Apellido, Segundo Apellido, Nombre -->
+      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="39.0" prefWidth="950.0">
+         <children>
+            <Label text="DNI:" />
+            <TextField fx:id="dnipac" prefHeight="25.0" prefWidth="100.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </TextField>
+            <Label text="1º Apellido:" />
+            <TextField fx:id="ape1pac" prefHeight="25.0" prefWidth="140.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </TextField>
+            <Label text="2º Apellido:" />
+            <TextField fx:id="ape2pac" prefHeight="25.0" prefWidth="140.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </TextField>
+            <Label text="Nombre:" />
+            <TextField fx:id="nompac" prefHeight="25.0" prefWidth="140.0">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </TextField>
+         </children>
+      </HBox>
+
+      <!-- Fila 2: Fecha Nacimiento, Teléfono, Mail -->
+      <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefHeight="41.0" prefWidth="950.0">
+         <children>
+            <Label text="Fecha Nacimiento:" />
+            <DatePicker fx:id="nacpac">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </DatePicker>
+            <Label text="Teléfono:" />
+            <TextField fx:id="telpac" prefHeight="25.0" prefWidth="120.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </TextField>
+            <Label text="Mail:" />
+            <TextField fx:id="emailpac" prefHeight="25.0" prefWidth="200.0">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </TextField>
+         </children>
+      </HBox>
+
+      <!-- Fila 3: Dirección, Provincia, Localidad -->
+      <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefHeight="35.0" prefWidth="950.0">
+         <children>
+            <Label text="Dirección:" />
+            <TextField fx:id="dirpac" prefHeight="25.0" prefWidth="240.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </TextField>
+            <Label text="Provincia:" />
+            <ComboBox fx:id="cmbpac" prefWidth="150.0">
+               <HBox.margin>
+                  <Insets left="5.0" right="15.0" />
+               </HBox.margin>
+            </ComboBox>
+            <Label text="Localidad:" />
+            <ComboBox fx:id="locpac" prefWidth="150.0">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </ComboBox>
+         </children>
+      </HBox>
+
+      <!-- Botones con fx:id y eventos de acción -->
+      <HBox alignment="CENTER" prefHeight="29.0" prefWidth="882.0" spacing="15.0">
+         <children>
+            <Button fx:id="btnguardarpac" mnemonicParsing="false" onAction="#guardarPaciente" text="Guardar" />
+            <Button fx:id="btnmodpac" mnemonicParsing="false" text="Modificar" />
+            <Button fx:id="btndelpac" mnemonicParsing="false" text="Eliminar" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
