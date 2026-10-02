@@ -79,4 +79,81 @@ public class PacienteDAOMySQL implements PacienteDAO {
 
         return pacientes;
     }
+    public boolean modificarPaciente(String dniOriginal, Paciente paciente) {
+        String sql = "UPDATE pacientes SET "
+                + "dnipac = ?, "
+                + "apelpac = ?, "
+                + "nompac = ?, "
+                + "movilpac = ?, "
+                + "emailpac = ?, "
+                + "nacpac = ?, "
+                + "dirpac = ?, "
+                + "propac = ?, "
+                + "munipac = ? "
+                + "WHERE dnipac = ?";
+
+        try (Connection conexion = ConexionMYSQL.getConexion();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, paciente.getDni());
+            ps.setString(2, paciente.getApellidos());
+            ps.setString(3, paciente.getNombre());
+            ps.setString(4, paciente.getMovil());
+            ps.setString(5, paciente.getEmail());
+            if (paciente.getNacimiento() != null) {
+                ps.setDate(6, java.sql.Date.valueOf(paciente.getNacimiento()));
+            } else {
+                ps.setNull(6, Types.DATE);
+            }
+            ps.setString(7, paciente.getDireccion());
+            ps.setString(8, paciente.getProvincia());
+            ps.setString(9, paciente.getMunicipio());
+            ps.setString(10, dniOriginal);
+
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al modificar el paciente: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public Paciente cargarPaciente(String dni) {
+
+        // Obtenemos todos los campos de un paciente para rellenar el formulario
+        String sql = "SELECT dnipac, apelpac, nompac, movilpac, emailpac, "
+                + "nacpac, dirpac, propac, munipac "
+                + "FROM pacientes "
+                + "WHERE dnipac = ?";
+
+        try (Connection conexion = ConexionMYSQL.getConexion();
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    java.sql.Date nacimiento = rs.getDate("nacpac");
+
+                    return new Paciente(
+                            rs.getString("dnipac"),
+                            rs.getString("apelpac"),
+                            rs.getString("nompac"),
+                            rs.getString("movilpac"),
+                            rs.getString("emailpac"),
+                            nacimiento != null ? nacimiento.toLocalDate() : null,
+                            rs.getString("dirpac"),
+                            rs.getString("propac"),
+                            rs.getString("munipac"));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al cargar el paciente: " + e.getMessage());
+        }
+
+        return null;
+    }
 }
