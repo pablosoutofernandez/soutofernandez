@@ -16,6 +16,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#salir" text="Salir" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Ayuda">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#abrirAcercaDe" text="Acerca de" />
+               </items>
+            </Menu>
          </menus>
       </MenuBar>
       <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
