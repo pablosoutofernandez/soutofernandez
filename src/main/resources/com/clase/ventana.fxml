@@ -30,6 +30,11 @@
                   <fx:include source="pacientes.fxml" />
                </content>
             </Tab>
+            <Tab text="Doctores">
+               <content>
+                  <fx:include source="doctores.fxml" />
+               </content>
+            </Tab>
          </tabs>
       </TabPane>
    </children>
