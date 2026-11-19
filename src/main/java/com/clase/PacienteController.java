@@ -8,6 +8,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Button;
 import javafx.fxml.Initializable;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import java.net.URL;
 import java.sql.Connection;
@@ -253,7 +254,12 @@ public class PacienteController implements Initializable {
         alerta.showAndWait();
     }
 
-    @FXML 
+    // Paciente seleccionado en la tabla (lo usa la pestaña Citas)
+    public ReadOnlyObjectProperty<Paciente> pacienteSeleccionadoProperty() {
+        return tablaPacientes.getSelectionModel().selectedItemProperty();
+    }
+
+    @FXML
      private void cargarPacientes(){
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
         List<Paciente> pacientes = dao.cargarPacientes();

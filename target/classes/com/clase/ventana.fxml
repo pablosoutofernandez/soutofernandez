@@ -27,12 +27,17 @@
          <tabs>
             <Tab text="Pacientes">
                <content>
-                  <fx:include source="pacientes.fxml" />
+                  <fx:include fx:id="pacientes" source="pacientes.fxml" />
                </content>
             </Tab>
             <Tab text="Doctores">
                <content>
-                  <fx:include source="doctores.fxml" />
+                  <fx:include fx:id="doctores" source="doctores.fxml" />
+               </content>
+            </Tab>
+            <Tab text="Citas">
+               <content>
+                  <fx:include fx:id="citas" source="citas.fxml" />
                </content>
             </Tab>
          </tabs>

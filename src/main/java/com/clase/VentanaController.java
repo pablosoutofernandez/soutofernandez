@@ -11,6 +11,25 @@ import javafx.stage.Stage;
 
 public class VentanaController {
 
+    // Controladores de las pestañas incluidas con <fx:include fx:id="...">.
+    // El nombre es el fx:id + "Controller"
+    @FXML
+    private PacienteController pacientesController;
+    @FXML
+    private DoctorController doctoresController;
+    @FXML
+    private CitasController citasController;
+
+    @FXML
+    private void initialize() {
+        // Cuando cambia el paciente seleccionado, la pestaña Citas muestra sus citas
+        pacientesController.pacienteSeleccionadoProperty().addListener(
+                (obs, anterior, nuevo) -> citasController.cargarDatosPaciente(nuevo));
+        // Cuando cambia el doctor seleccionado, se pone su id en la pestaña Citas
+        doctoresController.doctorSeleccionadoProperty().addListener(
+                (obs, anterior, nuevo) -> citasController.cargarDatosDoctor(nuevo));
+    }
+
     @FXML
     private void salir() {
         Platform.exit();

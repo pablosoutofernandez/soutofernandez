@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import com.clase.modelo.Doctor;
 import com.clase.persistencia.DoctorDAOMySQL;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -175,6 +176,11 @@ public class DoctorController implements Initializable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+    // Doctor seleccionado en la tabla (lo usa la pestaña Citas)
+    public ReadOnlyObjectProperty<Doctor> doctorSeleccionadoProperty() {
+        return tablaDoctores.getSelectionModel().selectedItemProperty();
     }
 
     private void cargarDoctores() {
