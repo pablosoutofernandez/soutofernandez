@@ -4,13 +4,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-public class AcercaDeController {
+public class AcercadeController {
 
     @FXML
-    private Button btncerrar;
+    private Button btnCerrarAcercade;
 
     @FXML
-    private void cerrar() {
-        ((Stage) btncerrar.getScene().getWindow()).close();
+    private void cerrarAcercade() {
+        ((Stage) btnCerrarAcercade.getScene().getWindow()).close();
     }
 }

@@ -18,7 +18,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
                     + "(dnipac, apelpac, nompac, movilpac, emailpac, nacpac, dirpac, propac, munipac) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conexion = ConexionMYSQL.getConexion();
+        try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, paciente.getDni());
@@ -55,7 +55,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
                 + "FROM pacientes "
                 + "ORDER BY apelpac, nompac";
 
-        try (Connection conexion = ConexionMYSQL.getConexion();
+        try (Connection conexion = ConexionMySQL.getConexion();
                 PreparedStatement ps = conexion.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
 
@@ -79,6 +79,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
 
         return pacientes;
     }
+    @Override
     public boolean modificarPaciente(String dniOriginal, Paciente paciente) {
         String sql = "UPDATE pacientes SET "
                 + "dnipac = ?, "
@@ -92,7 +93,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
                 + "munipac = ? "
                 + "WHERE dnipac = ?";
 
-        try (Connection conexion = ConexionMYSQL.getConexion();
+        try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, paciente.getDni());
@@ -120,7 +121,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
     }
 
     @Override
-    public Paciente cargarPaciente(String dni) {
+    public Paciente buscarPaciente(String dni) {
 
         // Obtenemos todos los campos de un paciente para rellenar el formulario
         String sql = "SELECT dnipac, apelpac, nompac, movilpac, emailpac, "
@@ -128,7 +129,7 @@ public class PacienteDAOMySQL implements PacienteDAO {
                 + "FROM pacientes "
                 + "WHERE dnipac = ?";
 
-        try (Connection conexion = ConexionMYSQL.getConexion();
+        try (Connection conexion = ConexionMySQL.getConexion();
                 PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, dni);
@@ -155,5 +156,20 @@ public class PacienteDAOMySQL implements PacienteDAO {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean eliminarPaciente(String dni) {
+        String sql = "DELETE FROM pacientes WHERE dnipac = ?";
+        try (Connection conexion = ConexionMySQL.getConexion();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar el paciente: " + e.getMessage());
+            return false;
+        }
     }
 }

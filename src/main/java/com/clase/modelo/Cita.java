@@ -1,8 +1,6 @@
-
 package com.clase.modelo;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 public class Cita {
 
@@ -10,11 +8,15 @@ public class Cita {
     private String citadnipac;
     private int citaiddoc;
     private LocalDate fechacita;
-    private LocalTime horacita;
+    private String horacita;
     private String motivo;
     private String diagnostico;
     private String tratamiento;
     private String estadocita;
+
+    // datos del doctor para la tabla de citas (JOIN con doctores)
+    private String apeldoc;
+    private String espedoc;
 
     // Constructor vacío
     public Cita() {
@@ -22,10 +24,9 @@ public class Cita {
 
     // Constructor con todos los campos
     public Cita(int idcita, String citadnipac, int citaiddoc,
-                LocalDate fechacita, LocalTime horacita,
+                LocalDate fechacita, String horacita,
                 String motivo, String diagnostico,
                 String tratamiento, String estadocita) {
-
         this.idcita = idcita;
         this.citadnipac = citadnipac;
         this.citaiddoc = citaiddoc;
@@ -37,8 +38,26 @@ public class Cita {
         this.estadocita = estadocita;
     }
 
-    // Getters y Setters
+    // un constructor para insertar (el id lo genera la base de datos)
+    public Cita(String citadnipac, int citaiddoc,
+                LocalDate fechacita, String horacita,
+                String motivo, String diagnostico,
+                String tratamiento, String estadocita) {
+        this(0, citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita);
+    }
 
+    // modelo para la tabla de citas
+    public Cita(Integer idcita, String apeldoc, String espedoc,
+            LocalDate fechacita, String horacita, String estadocita) {
+        this.idcita = idcita;
+        this.apeldoc = apeldoc;
+        this.espedoc = espedoc;
+        this.fechacita = fechacita;
+        this.horacita = horacita;
+        this.estadocita = estadocita;
+    }
+
+    // Getters y Setters
     public int getIdcita() {
         return idcita;
     }
@@ -71,11 +90,11 @@ public class Cita {
         this.fechacita = fechacita;
     }
 
-    public LocalTime getHoracita() {
+    public String getHoracita() {
         return horacita;
     }
 
-    public void setHoracita(LocalTime horacita) {
+    public void setHoracita(String horacita) {
         this.horacita = horacita;
     }
 
@@ -109,5 +128,21 @@ public class Cita {
 
     public void setEstadocita(String estadocita) {
         this.estadocita = estadocita;
+    }
+
+    public String getApeldoc() {
+        return apeldoc;
+    }
+
+    public void setApeldoc(String apeldoc) {
+        this.apeldoc = apeldoc;
+    }
+
+    public String getEspedoc() {
+        return espedoc;
+    }
+
+    public void setEspedoc(String espedoc) {
+        this.espedoc = espedoc;
     }
 }

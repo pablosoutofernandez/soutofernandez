@@ -6,5 +6,7 @@ import com.clase.modelo.Paciente;
 public interface PacienteDAO {
     boolean guardarPaciente(Paciente paciente);
     List<Paciente> cargarPacientes();
-    Paciente cargarPaciente(String dni);
+    Paciente buscarPaciente(String dni);
+    boolean modificarPaciente(String dni, Paciente paciente);
+    boolean eliminarPaciente(String dni);
 }

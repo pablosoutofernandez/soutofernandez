@@ -5,7 +5,8 @@ import com.clase.modelo.Cita;
 
 public interface CitaDAO {
     boolean guardarCita(Cita cita);
-    List<Cita> cargarCitasPaciente(String dni);
-    boolean modificarCita(Cita cita);
-    boolean eliminarCita(int idcita);
+    boolean modificarCita(Integer id, Cita cita);
+    List<Cita> cargarCitaspaciente(String dnipac);
+    Cita buscaCitaporId (Integer id);
+    boolean eliminaCita(Integer id);
 }

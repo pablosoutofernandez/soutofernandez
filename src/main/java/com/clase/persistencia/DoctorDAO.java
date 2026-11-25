@@ -6,6 +6,7 @@ import com.clase.modelo.Doctor;
 public interface DoctorDAO {
     boolean guardarDoctor(Doctor doctor);
     List<Doctor> cargarDoctores();
-    boolean modificarDoctor(Doctor doctor);
-    boolean eliminarDoctor(int id);
+    boolean modificarDoctor(Integer id, Doctor doctor);
+    boolean eliminarDoctor(Integer id);
+    Doctor buscaDocporId (Integer id);
 }

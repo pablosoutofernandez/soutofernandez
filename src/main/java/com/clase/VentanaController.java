@@ -14,29 +14,26 @@ public class VentanaController {
     // Controladores de las pestañas incluidas con <fx:include fx:id="...">.
     // El nombre es el fx:id + "Controller"
     @FXML
-    private PacienteController pacientesController;
+    private PacientesController panelPacientesController;
     @FXML
-    private DoctorController doctoresController;
+    private DoctoresController panelDoctoresController;
     @FXML
-    private CitasController citasController;
+    private CitasController panelCitasController;
 
     @FXML
-    private void initialize() {
-        // Cuando cambia el paciente seleccionado, la pestaña Citas muestra sus citas
-        pacientesController.pacienteSeleccionadoProperty().addListener(
-                (obs, anterior, nuevo) -> citasController.cargarDatosPaciente(nuevo));
-        // Cuando cambia el doctor seleccionado, se pone su id en la pestaña Citas
-        doctoresController.doctorSeleccionadoProperty().addListener(
-                (obs, anterior, nuevo) -> citasController.cargarDatosDoctor(nuevo));
+    public void initialize() {
+        // para acceder desde pacientes y doctores al panel de citas
+        panelPacientesController.setCitasController(panelCitasController);
+        panelDoctoresController.setCitasController(panelCitasController);
     }
 
     @FXML
-    private void salir() {
+    private void salirApp() {
         Platform.exit();
     }
 
     @FXML
-    private void abrirAcercaDe() throws IOException {
+    private void mostrarAcercade() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clase/acercade.fxml"));
         Stage stage = new Stage();
         stage.setTitle("Acerca de");

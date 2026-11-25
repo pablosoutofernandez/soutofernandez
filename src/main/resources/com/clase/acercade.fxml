@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="340.0" prefWidth="320.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercaDeController">
+<VBox alignment="CENTER" prefHeight="340.0" prefWidth="320.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercadeController">
    <children>
       <Label text="Sanidad Teis" textFill="#2e8b3d">
          <font>
@@ -21,7 +21,7 @@
          </children>
       </Group>
       <Label text="Versión: 0.0.1" />
-      <Button fx:id="btncerrar" mnemonicParsing="false" onAction="#cerrar" text="Cerrar" />
+      <Button fx:id="btnCerrarAcercade" mnemonicParsing="false" onAction="#cerrarAcercade" text="Cerrar" />
    </children>
    <padding>
       <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />

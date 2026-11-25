@@ -10,6 +10,16 @@ CREATE TABLE IF NOT EXISTS pacientes (
     munipac   VARCHAR(50)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS doctores (
+    iddoc     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    apeldoc   VARCHAR(100) NOT NULL,
+    nomdoc    VARCHAR(50)  NOT NULL,
+    movildoc  VARCHAR(15),
+    emaildoc  VARCHAR(100),
+    coledoc   BOOLEAN,
+    espedoc   VARCHAR(50)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS citas (
     idcita       INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     citadnipac   VARCHAR(9)   NOT NULL,

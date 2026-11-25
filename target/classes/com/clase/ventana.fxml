@@ -13,12 +13,12 @@
          <menus>
             <Menu mnemonicParsing="false" text="Archivo">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#salir" text="Salir" />
+                  <MenuItem mnemonicParsing="false" fx:id="menuSalir" onAction="#salirApp" text="Salir" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Ayuda">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#abrirAcercaDe" text="Acerca de" />
+                  <MenuItem mnemonicParsing="false" fx:id="acercade" onAction="#mostrarAcercade" text="Acerca de" />
                </items>
             </Menu>
          </menus>
@@ -27,17 +27,17 @@
          <tabs>
             <Tab text="Pacientes">
                <content>
-                  <fx:include fx:id="pacientes" source="pacientes.fxml" />
+                  <fx:include fx:id="panelPacientes" source="pacientes.fxml" />
                </content>
             </Tab>
             <Tab text="Doctores">
                <content>
-                  <fx:include fx:id="doctores" source="doctores.fxml" />
+                  <fx:include fx:id="panelDoctores" source="doctores.fxml" />
                </content>
             </Tab>
             <Tab text="Citas">
                <content>
-                  <fx:include fx:id="citas" source="citas.fxml" />
+                  <fx:include fx:id="panelCitas" source="citas.fxml" />
                </content>
             </Tab>
          </tabs>

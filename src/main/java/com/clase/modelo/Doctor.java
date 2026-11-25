@@ -1,45 +1,48 @@
 package com.clase.modelo;
 
 public class Doctor {
-    private int iddoc;
-    private String nomedoc;
+    private Integer iddoc;
     private String apeldoc;
-    private boolean coledoc;
+    private String nomdoc;
     private String movildoc;
-    private String maildoc;
+    private String emaildoc;
+    private Boolean coledoc;
     private String espedoc;
 
-    public Doctor(int iddoc, String nomedoc, String apeldoc, boolean coledoc,
-            String movildoc, String maildoc, String espedoc) {
+    // modelo para insertar: el id lo genera la base de datos (AUTO_INCREMENT)
+    public Doctor(String apeldoc, String nomdoc,
+            String movildoc, String emaildoc,
+            Boolean coledoc, String espedoc) {
+        this(null, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc);
+    }
+
+    // modelo para cargar en el formulario desde la tabla en la bbdd
+    public Doctor(Integer iddoc, String apeldoc, String nomdoc,
+            String movildoc, String emaildoc,
+            Boolean coledoc, String espedoc) {
         this.iddoc = iddoc;
-        this.nomedoc = nomedoc;
         this.apeldoc = apeldoc;
-        this.coledoc = coledoc;
+        this.nomdoc = nomdoc;
         this.movildoc = movildoc;
-        this.maildoc = maildoc;
+        this.emaildoc = emaildoc;
+        this.coledoc = coledoc;
         this.espedoc = espedoc;
     }
 
-    // Doctor nuevo: el id lo genera la base de datos (AUTO_INCREMENT)
-    public Doctor(String nomedoc, String apeldoc, boolean coledoc,
-            String movildoc, String maildoc, String espedoc) {
-        this(0, nomedoc, apeldoc, coledoc, movildoc, maildoc, espedoc);
-    }
-
-    public int getId() {
+    public Integer getID() {
         return iddoc;
     }
 
-    public void setId(int iddoc) {
+    public void setID(Integer iddoc) {
         this.iddoc = iddoc;
     }
 
     public String getNombre() {
-        return nomedoc;
+        return nomdoc;
     }
 
-    public void setNombre(String nomedoc) {
-        this.nomedoc = nomedoc;
+    public void setNombre(String nomdoc) {
+        this.nomdoc = nomdoc;
     }
 
     public String getApellidos() {
@@ -50,14 +53,6 @@ public class Doctor {
         this.apeldoc = apeldoc;
     }
 
-    public boolean isColegiado() {
-        return coledoc;
-    }
-
-    public void setColegiado(boolean coledoc) {
-        this.coledoc = coledoc;
-    }
-
     public String getMovil() {
         return movildoc;
     }
@@ -66,12 +61,20 @@ public class Doctor {
         this.movildoc = movildoc;
     }
 
-    public String getEmail() {
-        return maildoc;
+    public Boolean getColegiado() {
+        return coledoc;
     }
 
-    public void setEmail(String maildoc) {
-        this.maildoc = maildoc;
+    public void setColegiado(Boolean coledoc) {
+        this.coledoc = coledoc;
+    }
+
+    public String getEmail() {
+        return emaildoc;
+    }
+
+    public void setEmail(String emaildoc) {
+        this.emaildoc = emaildoc;
     }
 
     public String getEspecialidad() {
