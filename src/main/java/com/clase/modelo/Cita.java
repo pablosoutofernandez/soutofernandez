@@ -13,6 +13,7 @@ public class Cita {
     private String diagnostico;
     private String tratamiento;
     private String estadocita;
+    private Double tarifa;
 
     // datos del doctor para la tabla de citas (JOIN con doctores)
     private String apeldoc;
@@ -26,7 +27,7 @@ public class Cita {
     public Cita(int idcita, String citadnipac, int citaiddoc,
                 LocalDate fechacita, String horacita,
                 String motivo, String diagnostico,
-                String tratamiento, String estadocita) {
+                String tratamiento, String estadocita, double tarifa) {
         this.idcita = idcita;
         this.citadnipac = citadnipac;
         this.citaiddoc = citaiddoc;
@@ -36,28 +37,38 @@ public class Cita {
         this.diagnostico = diagnostico;
         this.tratamiento = tratamiento;
         this.estadocita = estadocita;
+        this.tarifa = tarifa;
     }
 
     // un constructor para insertar (el id lo genera la base de datos)
     public Cita(String citadnipac, int citaiddoc,
                 LocalDate fechacita, String horacita,
                 String motivo, String diagnostico,
-                String tratamiento, String estadocita) {
-        this(0, citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita);
+                String tratamiento, String estadocita, double tarifa) {
+        this(0, citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita, tarifa);
     }
 
     // modelo para la tabla de citas
     public Cita(Integer idcita, String apeldoc, String espedoc,
-            LocalDate fechacita, String horacita, String estadocita) {
+            LocalDate fechacita, String horacita, String estadocita, double tarifa) {
         this.idcita = idcita;
         this.apeldoc = apeldoc;
         this.espedoc = espedoc;
         this.fechacita = fechacita;
         this.horacita = horacita;
         this.estadocita = estadocita;
+        this.tarifa = tarifa;
     }
 
     // Getters y Setters
+    public double getTarifa() {
+        return tarifa;
+    }
+
+    public void setTarifa(double tarifa) {
+        this.tarifa = tarifa;
+    }
+    
     public int getIdcita() {
         return idcita;
     }

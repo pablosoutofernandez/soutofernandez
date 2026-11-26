@@ -36,7 +36,7 @@ public class CitasController implements Initializable {
 
     // idcita, citadnipac y citaiddoc no son editables
     @FXML
-    private TextField citadnipac, citaiddoc, idcita, motivo;
+    private TextField citadnipac, citaiddoc, idcita, motivo, tarifa;
     @FXML
     private CheckBox chkatendida, chkpendiente, chkanulada;
     @FXML
@@ -44,7 +44,7 @@ public class CitasController implements Initializable {
     @FXML
     private TableView<Cita> tablaCitas;
     @FXML
-    private TableColumn<Cita, String> idcitacol, apeldoccol, espedoccol, fechacitacol, horacitacol, estadocitacol;
+    private TableColumn<Cita, String> idcitacol, apeldoccol, espedoccol, fechacitacol, horacitacol, estadocitacol, tarifacitacol;
     @FXML
     private ComboBox<String> horacita;
     @FXML
@@ -60,7 +60,7 @@ public class CitasController implements Initializable {
         fechacitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFechacita().toString()));
         horacitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getHoracita()));
         estadocitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstadocita()));
-
+        tarifacitacol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getTarifa())));
         cargarHorario();
         chkpendiente.setSelected(true);
     }
@@ -157,7 +157,8 @@ public class CitasController implements Initializable {
             motivo.getText().trim(),
             diagnostico.getText(),
             tratamiento.getText(),
-            leerEstado()
+            leerEstado(),
+            Double.parseDouble(tarifa.getText())
         );
 
         if (!confirmar(idcita.getText().isEmpty() ? "¿Desea grabar la cita?" : "¿Desea modificar los datos de la cita?")) {

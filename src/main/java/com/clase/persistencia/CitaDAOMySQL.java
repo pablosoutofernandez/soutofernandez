@@ -16,8 +16,8 @@ public class CitaDAOMySQL implements CitaDAO {
 
         // idcita es AUTO_INCREMENT, no se inserta
         String sql = "INSERT INTO citas "
-                    + "(citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    + "(citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita, tarifa) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -30,6 +30,7 @@ public class CitaDAOMySQL implements CitaDAO {
             ps.setString(6, cita.getDiagnostico());
             ps.setString(7, cita.getTratamiento());
             ps.setString(8, cita.getEstadocita());
+            ps.setDouble(9, cita.getTarifa());
 
             ps.executeUpdate();
             return true;
@@ -44,7 +45,7 @@ public class CitaDAOMySQL implements CitaDAO {
 
         String sql = "UPDATE citas SET "
                 + "citadnipac = ?, citaiddoc = ?, fechacita = ?, horacita = ?, "
-                + "motivo = ?, diagnostico = ?, tratamiento = ?, estadocita = ? "
+                + "motivo = ?, diagnostico = ?, tratamiento = ?, estadocita = ?, tarifa = ? "
                 + "WHERE idcita = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
@@ -58,7 +59,8 @@ public class CitaDAOMySQL implements CitaDAO {
             ps.setString(6, cita.getDiagnostico());
             ps.setString(7, cita.getTratamiento());
             ps.setString(8, cita.getEstadocita());
-            ps.setInt(9, id);
+            ps.setDouble(9, cita.getTarifa());
+            ps.setInt(10, id);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -73,7 +75,7 @@ public class CitaDAOMySQL implements CitaDAO {
 
         List<Cita> citas = new ArrayList<>();
 
-        String sql = "SELECT c.idcita, c.fechacita, c.horacita, c.estadocita, "
+        String sql = "SELECT c.idcita, c.fechacita, c.horacita, c.estadocita, c.tarifa "
                 + "d.apeldoc, d.espedoc "
                 + "FROM citas c "
                 + "INNER JOIN doctores d ON c.citaiddoc = d.iddoc "
@@ -92,7 +94,9 @@ public class CitaDAOMySQL implements CitaDAO {
                             rs.getString("espedoc"),
                             rs.getDate("fechacita").toLocalDate(),
                             rs.getString("horacita"),
-                            rs.getString("estadocita")));
+                            rs.getString("estadocita"),
+                            rs.getDouble("tarifa")));
+
                 }
             }
 
@@ -125,7 +129,8 @@ public class CitaDAOMySQL implements CitaDAO {
                             rs.getString("motivo"),
                             rs.getString("diagnostico"),
                             rs.getString("tratamiento"),
-                            rs.getString("estadocita"));
+                            rs.getString("estadocita"),
+                            rs.getDouble("tarifa"));
                 }
             }
 

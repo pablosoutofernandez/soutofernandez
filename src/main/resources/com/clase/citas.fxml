@@ -83,6 +83,12 @@
                         <Insets left="5.0" right="15.0" />
                      </HBox.margin>
                   </ComboBox>
+                  <Label text="Tarifa:" />
+                  <TextField fx:id="tarifa" prefHeight="25.0" prefWidth="250.0">
+                     <HBox.margin>
+                        <Insets left="5.0" right="15.0" />
+                     </HBox.margin>
+                  </TextField>
                   <Label text="Estado:" />
                   <CheckBox fx:id="chkpendiente" mnemonicParsing="false" onAction="#gestionarExclusion" text="Pendiente">
                      <HBox.margin>
