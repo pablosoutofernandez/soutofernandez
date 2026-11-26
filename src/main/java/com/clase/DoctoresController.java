@@ -162,6 +162,16 @@ public class DoctoresController implements Initializable {
         cleanFormdoc();
     }
 
+    // Doctores que se ven ahora en la tabla (para el informe hecho con una lista de objetos)
+    public java.util.List<Doctor> getDoctoresTabla() {
+        return tablaDoctores.getItems();
+    }
+
+    // Especialidad elegida en el combo (la usa el informe de doctores; null = todas)
+    public String getEspecialidadSeleccionada() {
+        return espedoc.getValue();
+    }
+
     private void cargarDoctors() {
         DoctorDAOMySQL dao = new DoctorDAOMySQL();
         tablaDoctores.getItems().setAll(dao.cargarDoctores());

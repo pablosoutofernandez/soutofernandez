@@ -1,8 +1,11 @@
 package com.clase;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import com.clase.informes.Informes;
 import com.clase.modelo.Cita;
 import com.clase.modelo.Doctor;
 import com.clase.modelo.Paciente;
@@ -43,6 +46,9 @@ public class CitasController implements Initializable {
     @FXML
     private TextArea diagnostico, tratamiento;
 
+    // nombre del paciente seleccionado (para el título del informe)
+    private String nombrePaciente = "";
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         idcitacol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getIdcita())));
@@ -60,6 +66,7 @@ public class CitasController implements Initializable {
     public void cargarDatosPaciente(Paciente paciente) {
         citadnipac.setText(paciente.getDni());
         lblCita.setText("Citas de " + paciente.getNombre() + " " + paciente.getApellidos());
+        nombrePaciente = paciente.getApellidos() + ", " + paciente.getNombre();
         limpiaForm();
         cargarCitas();
     }
@@ -224,6 +231,34 @@ public class CitasController implements Initializable {
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "No se pudo eliminar la cita. Mira la consola para ver el error.");
         }
+    }
+
+    // ===================== INFORMES =====================
+
+    // Justificante de la cita seleccionada (informe cita.jrxml con el parámetro IDCITA)
+    @FXML
+    public void imprimirCita() {
+        Cita citaSeleccionada = tablaCitas.getSelectionModel().getSelectedItem();
+        if (citaSeleccionada == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona una cita de la tabla para imprimirla.");
+            return;
+        }
+        Map<String, Object> parametros = new HashMap<>();
+        parametros.put("IDCITA", citaSeleccionada.getIdcita());
+        Informes.mostrar("cita.jrxml", parametros);
+    }
+
+    // Historial de citas del paciente (informe citaspaciente.jrxml con los parámetros DNI y PACIENTE)
+    @FXML
+    public void informeCitasPaciente() {
+        if (citadnipac.getText().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un paciente en la pestaña Pacientes.");
+            return;
+        }
+        Map<String, Object> parametros = new HashMap<>();
+        parametros.put("DNI", citadnipac.getText());
+        parametros.put("PACIENTE", nombrePaciente);
+        Informes.mostrar("citaspaciente.jrxml", parametros);
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {

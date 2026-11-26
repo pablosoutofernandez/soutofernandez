@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,7 +14,20 @@
          <menus>
             <Menu mnemonicParsing="false" text="Archivo">
                <items>
+                  <MenuItem mnemonicParsing="false" fx:id="abrirVentana" onAction="#abrirDir" text="Abrir carpeta" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" fx:id="menuSalir" onAction="#salirApp" text="Salir" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Informes">
+               <items>
+                  <MenuItem mnemonicParsing="false" fx:id="informePacientes" onAction="#informePacientes" text="Informe Pacientes" />
+                  <MenuItem mnemonicParsing="false" fx:id="informeDoctores" onAction="#informeDoctores" text="Informe Doctores" />
+                  <MenuItem mnemonicParsing="false" fx:id="informeTablaDoctores" onAction="#informeTablaDoctores" text="Doctores en pantalla" />
+                  <MenuItem mnemonicParsing="false" fx:id="informePacientesCitas" onAction="#informePacientesCitas" text="Pacientes y sus citas" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" fx:id="imprimirCita" onAction="#imprimirCita" text="Imprimir Cita" />
+                  <MenuItem mnemonicParsing="false" fx:id="informeCitasPaciente" onAction="#informeCitasPaciente" text="Citas del paciente" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Ayuda">

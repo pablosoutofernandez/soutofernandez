@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SUBINFORME: citas de UN paciente. Recibe el DNI desde el informe principal -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="citas_sub" pageWidth="515" pageHeight="842" columnWidth="515" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenNoDataType="AllSectionsNoDetail" uuid="5d2e8f3b-9c1a-4b7e-8d2f-2b3c4d5e6f77">
+	<parameter name="DNI" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT c.fechacita, c.horacita, c.estadocita, d.apeldoc
+FROM citas c INNER JOIN doctores d ON c.citaiddoc = d.iddoc
+WHERE c.citadnipac = $P{DNI}
+ORDER BY c.fechacita]]>
+	</queryString>
+	<field name="fechacita" class="java.sql.Date"/>
+	<field name="horacita" class="java.lang.String"/>
+	<field name="estadocita" class="java.lang.String"/>
+	<field name="apeldoc" class="java.lang.String"/>
+	<detail>
+		<band height="16">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="20" y="0" width="80" height="16"/>
+				<textFieldExpression><![CDATA[$F{fechacita}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="0" width="50" height="16"/>
+				<textFieldExpression><![CDATA[$F{horacita}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="150" y="0" width="200" height="16"/>
+				<textFieldExpression><![CDATA["Dr/a. " + $F{apeldoc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="350" y="0" width="100" height="16"/>
+				<textFieldExpression><![CDATA[$F{estadocita}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="16">
+			<textField>
+				<reportElement x="20" y="0" width="300" height="16"/>
+				<textElement><font isItalic="true"/></textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT} == 0 ? "Sin citas" : $V{REPORT_COUNT} + " cita(s)"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

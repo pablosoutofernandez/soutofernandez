@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="doctores" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenNoDataType="NoDataSection" uuid="0b6f1c1e-1d1a-4f57-9a43-6e1f0a7d2c11">
+	<!-- Parámetro opcional: si llega null salen todos los doctores -->
+	<parameter name="ESPECIALIDAD" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT iddoc, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc
+FROM doctores
+WHERE ($P{ESPECIALIDAD} IS NULL OR espedoc = $P{ESPECIALIDAD})
+ORDER BY espedoc, apeldoc, nomdoc]]>
+	</queryString>
+	<field name="iddoc" class="java.lang.Integer"/>
+	<field name="apeldoc" class="java.lang.String"/>
+	<field name="nomdoc" class="java.lang.String"/>
+	<field name="movildoc" class="java.lang.String"/>
+	<field name="emaildoc" class="java.lang.String"/>
+	<field name="coledoc" class="java.lang.Boolean"/>
+	<field name="espedoc" class="java.lang.String"/>
+	<!-- Agrupar por especialidad (la consulta TIENE que ir ordenada por espedoc) -->
+	<group name="grupoEspecialidad">
+		<groupExpression><![CDATA[$F{espedoc}]]></groupExpression>
+		<groupHeader>
+			<band height="26">
+				<textField>
+					<reportElement mode="Opaque" x="0" y="3" width="555" height="20" backcolor="#DDF5DD"/>
+					<textElement verticalAlignment="Middle">
+						<font isBold="true"/>
+						<paragraph leftIndent="5"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Especialidad: " + $F{espedoc}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="22">
+				<textField>
+					<reportElement x="355" y="0" width="200" height="18"/>
+					<textElement textAlignment="Right">
+						<font isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Doctores: " + $V{grupoEspecialidad_COUNT}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band height="60">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LISTADO DE DOCTORES]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="32" width="555" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{ESPECIALIDAD} == null ? "Todas las especialidades" : "Especialidad: " + $P{ESPECIALIDAD}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="24">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="2" width="40" height="20" forecolor="#FFFFFF" backcolor="#1F6F50"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+				<text><![CDATA[ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="40" y="2" width="160" height="20" forecolor="#FFFFFF" backcolor="#1F6F50"/>
+				<textElement verticalAlignment="Middle"><font isBold="true"/></textElement>
+				<text><![CDATA[Apellidos, Nombre]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="200" y="2" width="90" height="20" forecolor="#FFFFFF" backcolor="#1F6F50"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+				<text><![CDATA[Móvil]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="2" width="195" height="20" forecolor="#FFFFFF" backcolor="#1F6F50"/>
+				<textElement verticalAlignment="Middle"><font isBold="true"/></textElement>
+				<text><![CDATA[Email]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="485" y="2" width="70" height="20" forecolor="#FFFFFF" backcolor="#1F6F50"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true"/></textElement>
+				<text><![CDATA[Colegiado]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement x="0" y="0" width="40" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{iddoc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="0" width="160" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{apeldoc} + ", " + $F{nomdoc}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="200" y="0" width="90" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{movildoc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="290" y="0" width="195" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{emaildoc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="485" y="0" width="70" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{coledoc} ? "Sí" : "No"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="24">
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="0" y="4" width="150" height="18"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="355" y="4" width="160" height="18"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER} + " de "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="515" y="4" width="40" height="18"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="30">
+			<textField>
+				<reportElement x="0" y="6" width="555" height="20"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total doctores: " + $V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band height="30">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[No hay doctores para mostrar]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

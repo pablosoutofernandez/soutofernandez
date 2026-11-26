@@ -121,6 +121,8 @@
                <children>
                   <Button fx:id="btnguardardoc" mnemonicParsing="false" onAction="#guardarCita" text="Guardar" />
                   <Button fx:id="btndeldoc" mnemonicParsing="false" onAction="#eliminaCita" text="Eliminar" />
+                  <Button fx:id="btnimprimircita" mnemonicParsing="false" onAction="#imprimirCita" text="Imprimir cita" />
+                  <Button fx:id="btninformecitas" mnemonicParsing="false" onAction="#informeCitasPaciente" text="Informe citas" />
                </children>
             </HBox>
             <Label fx:id="lblCita" text="Selecciona un paciente en la pestaña Pacientes">
