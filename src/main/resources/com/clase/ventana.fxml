@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -10,106 +9,80 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
 
-<AnchorPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
-
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
    <children>
-      <VBox AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <MenuBar>
-              <menus>
-                <Menu mnemonicParsing="false" text="Archivo">
-                  <items>
-                    <MenuItem fx:id="abrirVentana" mnemonicParsing="false" onAction="#abrirDir" text="Abrir" />
-                        <MenuItem mnemonicParsing="false" text="Guardar" />
+               <menus>
+                  <Menu mnemonicParsing="false" text="Archivo">
+                     <items>
+                        <MenuItem mnemonicParsing="false" fx:id="abrirVentana" onAction="#abrirDir" text="Abrir carpeta" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem fx:id="menuSalir" mnemonicParsing="false" onAction="#salirApp" text="Salir">
+                        <MenuItem mnemonicParsing="false" fx:id="menuSalir" onAction="#salirApp" text="Salir">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator>
-                        </MenuItem> 
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Informes">
-                  <items>
-                    <MenuItem fx:id="informePacientes" mnemonicParsing="false" onAction="#informePacientes" text="Informe Pacientes" />
-                        <MenuItem mnemonicParsing="false" text="Informe Doctores" />
-                        <MenuItem mnemonicParsing="false" text="Imprimir Cita" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Acerca">
-                  <items>
-                    <MenuItem fx:id="acercade" mnemonicParsing="false" onAction="#mostrarAcercade" text="Acerca de" />
-                  </items>
-                </Menu>
-              </menus>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Informes">
+                     <items>
+                        <MenuItem mnemonicParsing="false" fx:id="informePacientes" onAction="#informePacientes" text="Informe Pacientes" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Ayuda">
+                     <items>
+                        <MenuItem mnemonicParsing="false" fx:id="acercade" onAction="#mostrarAcercade" text="Acerca de" />
+                     </items>
+                  </Menu>
+               </menus>
             </MenuBar>
-            <ToolBar prefHeight="5.0" prefWidth="1270.0">
-              <items>
-                  <Button fx:id="btnAbrirdir" mnemonicParsing="false" onAction="#abrirDir" prefHeight="36.0" prefWidth="40.0">
+            <ToolBar>
+               <items>
+                  <Button fx:id="btnAbrirdir" mnemonicParsing="false" onAction="#abrirDir">
                      <graphic>
-                        <ImageView fitHeight="33.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../img/abrircarpeta.png" />
-                           </image>
-                        </ImageView>
+                        <SVGPath content="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" fill="#333333" />
                      </graphic>
+                     <tooltip>
+                        <Tooltip text="Abrir carpeta" />
+                     </tooltip>
                   </Button>
-                  <Separator orientation="VERTICAL" prefHeight="36.0" />
-                <Button fx:id="btnToolsalir" mnemonicParsing="false" onAction="#salirApp" prefHeight="36.0" prefWidth="40.0">
+                  <Separator orientation="VERTICAL" />
+                  <Button fx:id="btnToolsalir" mnemonicParsing="false" onAction="#salirApp">
                      <graphic>
-                        <ImageView fitHeight="48.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../img/salir.png" />
-                           </image>
-                        </ImageView>
+                        <SVGPath content="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#333333" />
                      </graphic>
+                     <tooltip>
+                        <Tooltip text="Salir (Ctrl+S)" />
+                     </tooltip>
                   </Button>
-              </items>
+               </items>
             </ToolBar>
-      
-            <TabPane minHeight="-Infinity" prefHeight="840.0" prefWidth="1260.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-      
+            <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                <tabs>
-      
-                <Tab fx:id="panpacientes" text="Pacientes">
-                  <content>
-                      <StackPane>
-                          <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                          </padding>
-      
-                          <fx:include fx:id="panelPacientes" source="pacientes.fxml" />
-                      </StackPane>
-                  </content>
-              </Tab>
-      
-                  <Tab fx:id="pandoctores" text="Doctores">
+                  <Tab text="Pacientes">
                      <content>
-                        <StackPane prefHeight="150.0" prefWidth="200.0">
-                           <children>
-                              <fx:include fx:id="panelDoctores" source="doctores.fxml" />
-                           </children>
-                        </StackPane>
-                     </content></Tab>
-                  <Tab text="   Citas   ">
-                     <content>
-                        <StackPane prefHeight="150.0" prefWidth="200.0">
-                           <children>
-                              <fx:include fx:id="panelCitas" source="citas.fxml" />
-                           </children>
-                        </StackPane>
+                        <fx:include fx:id="panelPacientes" source="pacientes.fxml" />
                      </content>
                   </Tab>
-      
+                  <Tab text="Doctores">
+                     <content>
+                        <fx:include fx:id="panelDoctores" source="doctores.fxml" />
+                     </content>
+                  </Tab>
+                  <Tab text="Citas">
+                     <content>
+                        <fx:include fx:id="panelCitas" source="citas.fxml" />
+                     </content>
+                  </Tab>
                </tabs>
-      
             </TabPane>
          </children>
       </VBox>

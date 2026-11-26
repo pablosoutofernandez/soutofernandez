@@ -1,8 +1,6 @@
-
 package com.clase.modelo;
 
 import java.time.LocalDate;
-
 
 public class Cita {
 
@@ -16,10 +14,9 @@ public class Cita {
     private String tratamiento;
     private String estadocita;
 
-    // Datos del doctor para mostrar en la tabla
+    // datos del doctor para la tabla de citas (JOIN con doctores)
     private String apeldoc;
     private String espedoc;
-
 
     // Constructor vacío
     public Cita() {
@@ -30,7 +27,6 @@ public class Cita {
                 LocalDate fechacita, String horacita,
                 String motivo, String diagnostico,
                 String tratamiento, String estadocita) {
-
         this.idcita = idcita;
         this.citadnipac = citadnipac;
         this.citaiddoc = citaiddoc;
@@ -42,22 +38,12 @@ public class Cita {
         this.estadocita = estadocita;
     }
 
-    // un constructor para insertar
-    // Constructor con todos los campos
+    // un constructor para insertar (el id lo genera la base de datos)
     public Cita(String citadnipac, int citaiddoc,
                 LocalDate fechacita, String horacita,
                 String motivo, String diagnostico,
                 String tratamiento, String estadocita) {
-
-      
-        this.citadnipac = citadnipac;
-        this.citaiddoc = citaiddoc;
-        this.fechacita = fechacita;
-        this.horacita = horacita;
-        this.motivo = motivo;
-        this.diagnostico = diagnostico;
-        this.tratamiento = tratamiento;
-        this.estadocita = estadocita;
+        this(0, citadnipac, citaiddoc, fechacita, horacita, motivo, diagnostico, tratamiento, estadocita);
     }
 
     // modelo para la tabla de citas
@@ -71,9 +57,7 @@ public class Cita {
         this.estadocita = estadocita;
     }
 
-
     // Getters y Setters
-
     public int getIdcita() {
         return idcita;
     }
@@ -146,7 +130,6 @@ public class Cita {
         this.estadocita = estadocita;
     }
 
-    // del doctor para mostrar en la tabla
     public String getApeldoc() {
         return apeldoc;
     }

@@ -1,203 +1,169 @@
 package com.clase.persistencia;
 
-import com.clase.modelo.Doctor;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.clase.modelo.Doctor;
 
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
 
 public class DoctorDAOMySQL implements DoctorDAO {
-    // Implementación de la interfaz DoctorDAO para MySQL
 
-    public void guardarDoctor(Doctor doctor) {
+    @Override
+    public boolean guardarDoctor(Doctor doctor) {
 
+        // iddoc es AUTO_INCREMENT, no se inserta
         String sql = "INSERT INTO doctores "
-                + "(apeldoc, nomdoc, movildoc, "
-                + " emaildoc, coledoc, espedoc) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                    + "(nomdoc, apeldoc, coledoc, movildoc, emaildoc, espedoc) "
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-                PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, doctor.getApellidos());
-            ps.setString(2, doctor.getNombre());
-            ps.setString(3, doctor.getMovil());
-            ps.setString(4, doctor.getEmail());
-            ps.setBoolean(5, doctor.getColegiado());
+            ps.setString(1, doctor.getNombre());
+            ps.setString(2, doctor.getApellidos());
+            ps.setBoolean(3, doctor.getColegiado());
+            ps.setString(4, doctor.getMovil());
+            ps.setString(5, doctor.getEmail());
             ps.setString(6, doctor.getEspecialidad());
-            
 
             ps.executeUpdate();
-
-            System.out.println("Doctor guardado correctamente.");
-
+            return true;
         } catch (SQLException e) {
-            System.out.println("Error al guardar el doctor: " + e.getMessage());
+            System.err.println("Error al guardar el doctor: " + e.getMessage());
+            return false;
         }
     }
-   
+
+    @Override
     public List<Doctor> cargarDoctores() {
 
         List<Doctor> doctores = new ArrayList<>();
 
-        String sql = "SELECT iddoc, apeldoc, nomdoc, movildoc, "
-                + "emaildoc, coledoc, espedoc "
-                + "FROM doctores ORDER BY apeldoc, nomdoc";
+        String sql = "SELECT iddoc, nomdoc, apeldoc, coledoc, movildoc, emaildoc, espedoc "
+                + "FROM doctores "
+                + "ORDER BY apeldoc, nomdoc";
 
         try (Connection conexion = ConexionMySQL.getConexion();
                 PreparedStatement ps = conexion.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            // Recorremos las filas obtenidas
 
             while (rs.next()) {
-
-                Doctor doctor = new Doctor(
-                        rs.getInt("iddoc"),
-                        rs.getString("apeldoc"),
-                        rs.getString("nomdoc"),
-                        rs.getString("movildoc"),
-                        rs.getString("emaildoc"),
-                        rs.getBoolean("coledoc"),
-                        rs.getString("espedoc")
-                );
-
-                doctores.add(doctor);
+                doctores.add(leerDoctor(rs));
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al cargar doctores: " + e.getMessage());
+            System.out.println("Error al cargar los doctores: " + e.getMessage());
         }
 
         return doctores;
     }
 
+    @Override
     public Doctor buscaDocporId(Integer id) {
 
-        String sql = "SELECT iddoc, apeldoc, nomdoc, coledoc, "
-                + " movildoc, emaildoc, espedoc "
-                + " FROM doctores "
-                + " WHERE iddoc = ?";
+        String sql = "SELECT iddoc, nomdoc, apeldoc, coledoc, movildoc, emaildoc, espedoc "
+                + "FROM doctores "
+                + "WHERE iddoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-                PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-
             try (ResultSet rs = ps.executeQuery()) {
-
                 if (rs.next()) {
-
-                    Doctor doctor = new Doctor(
-                            rs.getInt("iddoc"),
-                            rs.getString("apeldoc"),
-                            rs.getString("nomdoc"),
-                            rs.getString("movildoc"),
-                            rs.getString("emaildoc"),
-                            rs.getBoolean("coledoc"),
-                            rs.getString("espedoc"));
-                    
-                    return doctor;
+                    return leerDoctor(rs);
                 }
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al buscar el paciente: " + e.getMessage());
+            System.out.println("Error al buscar el doctor: " + e.getMessage());
         }
+
         return null;
     }
 
-    public void eliminarDoctor(Integer id) {
-
-            String sql = "DELETE FROM doctores WHERE iddoc = ?";
-
-            try (Connection conexion = ConexionMySQL.getConexion();
-                    PreparedStatement ps = conexion.prepareStatement(sql)) {
-
-                ps.setInt(1, id);
-
-                ps.executeUpdate();
-
-                System.out.println("Doctor eliminado correctamente.");
-
-            } catch (SQLException e) {
-                System.out.println("Error eliminar doctor: " + e.getMessage());
-            }
-        }
-    
-    public void modificarDoctor(Integer id, Doctor doctor) {
+    @Override
+    public boolean modificarDoctor(Integer id, Doctor doctor) {
 
         String sql = "UPDATE doctores SET "
-                + "nomdoc = ?, "
-                + "apeldoc  = ?, "
-                + "coledoc = ?, "
-                + "movildoc = ?, "
-                + "emaildoc = ?, "
-                + "espedoc = ? "
+                + "nomdoc = ?, apeldoc = ?, coledoc = ?, "
+                + "movildoc = ?, emaildoc = ?, espedoc = ? "
                 + "WHERE iddoc = ?";
-       
 
         try (Connection conexion = ConexionMySQL.getConexion();
-                PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-                ps.setString(1, doctor.getNombre());
-                ps.setString(2, doctor.getApellidos());
-                ps.setBoolean(3, doctor.getColegiado());
-                ps.setString(4, doctor.getMovil());
-                ps.setString(5, doctor.getEmail());
-                ps.setString(6, doctor.getEspecialidad());
-        
-                System.out.println(id);       
-                // ID del doctor para modificar
-                ps.setInt(7, id);
+            ps.setString(1, doctor.getNombre());
+            ps.setString(2, doctor.getApellidos());
+            ps.setBoolean(3, doctor.getColegiado());
+            ps.setString(4, doctor.getMovil());
+            ps.setString(5, doctor.getEmail());
+            ps.setString(6, doctor.getEspecialidad());
+            ps.setInt(7, id);
 
-                ps.executeUpdate();
-
-                System.out.println("Doctor modificado correctamente.");
-
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error al modificar el doctor: " + e.getMessage());
+            System.err.println("Error al modificar el doctor: " + e.getMessage());
+            return false;
         }
-
-        
-        cargarDoctores();
     }
 
-    public List<Doctor> cargardoctoresEspec(String espedoc){
-        List<Doctor> doctores = new ArrayList<>();
-        String sql = "SELECT iddoc, apeldoc, nomdoc, coledoc, "
-                + " movildoc, emaildoc, espedoc "
-                + " FROM doctores "
-                + " WHERE espedoc = ?";
+    @Override
+    public boolean eliminarDoctor(Integer id) {
+
+        String sql = "DELETE FROM doctores WHERE iddoc = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-                PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar el doctor: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Solo los doctores de una especialidad (botón lupa de la pestaña Doctores)
+    @Override
+    public List<Doctor> cargardoctoresEspec(String espedoc) {
+
+        List<Doctor> doctores = new ArrayList<>();
+
+        String sql = "SELECT iddoc, nomdoc, apeldoc, coledoc, movildoc, emaildoc, espedoc "
+                + "FROM doctores "
+                + "WHERE espedoc = ? "
+                + "ORDER BY apeldoc, nomdoc";
+
+        try (Connection conexion = ConexionMySQL.getConexion();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
             ps.setString(1, espedoc);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Doctor doctor = new Doctor(
-                            rs.getInt("iddoc"),
-                            rs.getString("apeldoc"),
-                            rs.getString("nomdoc"),
-                            rs.getString("movildoc"),
-                            rs.getString("emaildoc"),
-                            rs.getBoolean("coledoc"),
-                            rs.getString("espedoc"));
-                    
-                    doctores.add(doctor);
+                    doctores.add(leerDoctor(rs));
                 }
-              
             }
-         
-        } catch (SQLException e) {
-            System.out.println("Error al buscar el paciente: " + e.getMessage());
-        }
-        return doctores;   
 
+        } catch (SQLException e) {
+            System.out.println("Error al cargar los doctores por especialidad: " + e.getMessage());
+        }
+
+        return doctores;
+    }
+
+    private Doctor leerDoctor(ResultSet rs) throws SQLException {
+        return new Doctor(
+                rs.getInt("iddoc"),
+                rs.getString("apeldoc"),
+                rs.getString("nomdoc"),
+                rs.getString("movildoc"),
+                rs.getString("emaildoc"),
+                rs.getBoolean("coledoc"),
+                rs.getString("espedoc"));
     }
 }

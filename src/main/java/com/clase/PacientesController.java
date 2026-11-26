@@ -1,19 +1,19 @@
 package com.clase;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 import com.clase.modelo.Paciente;
 import com.clase.persistencia.PacienteDAOMySQL;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ResourceBundle;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -21,18 +21,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
-//import javafx.scene.control.cell.PropertyValueFactory para usarlo en la tabla de pacientes
-import javafx.beans.property.SimpleStringProperty;
-import java.util.List;
-import java.util.Optional;
-
-
 public class PacientesController implements Initializable {
-
+    // Los nombres tienen que coincidir EXACTAMENTE con los fx:id de pacientes.fxml
     @FXML
     private TextField dnipac, apelpac, nompac, movilpac, emailpac, dirpac;
     @FXML
@@ -41,503 +35,327 @@ public class PacientesController implements Initializable {
     private ComboBox<String> propac, munipac;
     @FXML
     private Button btnguardarpac, btndelpac;
-
-    // componentes de la tabla
     @FXML
     private TableView<Paciente> tablaPacientes;
-
     @FXML
-    private TableColumn<Paciente, String> coldnipac;
+    private TableColumn<Paciente, String> coldnipac, colapelpac, colnompac, colmovilpac, colpropac, colmunipac;
 
-    @FXML
-    private TableColumn<Paciente, String> colapelpac;
-
-    @FXML
-    private TableColumn<Paciente, String> colnompac;
-
-    @FXML
-    private TableColumn<Paciente, String> colmovilpac;
-
-    @FXML
-    private TableColumn<Paciente, String> colpropac;
-
-    @FXML
-    private TableColumn<Paciente, String> colmunipac;
-
-    boolean pacienteexiste = false;
     private boolean emailValido = true;
 
-    // referencia al controlador de citas para poder enviarle el paciente seleccionado
-    private CitasController citasController;
+    // true cuando el formulario tiene cargado un paciente que ya está en la base de datos
+    private boolean pacienteexiste = false;
 
-    // implementación de los métodos de la interfaz Initializable
-    // Este método se llama automáticamente cuando se carga la vista FXML
+    // para pasar el paciente seleccionado al panel de citas
+    private CitasController citasController;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        // Configuramos las columnas de la tabla para que muestren los datos de los pacientes
-
-        coldnipac.setCellValueFactory( // para la columna dni coge el valor el dni del paciente y lo muestra en la
-                                       // tabla
-                data -> new SimpleStringProperty(data.getValue().getDni()));
-
-        colapelpac.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getApellidos()));
-
-        colnompac.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getNombre()));
-
-        colmovilpac.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getMovil()));
-
-        colpropac.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getProvincia()));
-
-        colmunipac.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getMunicipio()));
-
         dnipac.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
+            if (!newValue) { // Cuando el TextField pierde el foco
                 comprobarDni();
             }
         });
-
-        nompac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        emailpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                String nombre = letrasCapitales(nompac.getText());
-                nompac.setText(nombre);
+                emailValido = validarEmail();
             }
         });
-
-        apelpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                String nombre = letrasCapitales(apelpac.getText());
-                apelpac.setText(nombre);
-            }
-        });
-
         movilpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 comprobarMovil();
-            } 
+            }
         });
-
-        emailpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) {
-                    if (!validarEmail()) {
-                        emailpac.requestFocus();
-                    }
-                }
-            });
-
-        //carga un paciente al seleccionarlo en la tabla 
-        //en el formulario para poder modificarlo o eliminarlo
-
-        tablaPacientes.getSelectionModel()
-        .selectedItemProperty()
-        .addListener((observable, anterior, nuevo) -> {
-
-            if (nuevo != null) {
-                cargarPaciente();
+        // al salir del campo se ponen las mayúsculas ("juan perez" -> "Juan Perez")
+        nompac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                nompac.setText(letrasCapitales(nompac.getText()));
+            }
+        });
+        apelpac.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                apelpac.setText(letrasCapitales(apelpac.getText()));
             }
         });
 
-        // manejador de provinvicas, cargamos provincias y luego el evento
-        // que carga los municipios de cada provincia
         cargarProvincias();
-
+        // al cambiar de provincia se cargan sus municipios
         propac.setOnAction(e -> cargarMunicipios());
+
+        coldnipac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDni()));
+        colapelpac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getApellidos()));
+        colnompac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getNombre()));
+        colmovilpac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getMovil()));
+        colpropac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getProvincia()));
+        colmunipac.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getMunicipio()));
 
         cargarPacientes();
     }
 
-
-    // FUNCIONES AUXILIARES DE PACIENTES
-
-    // método para recibir peticiones de citas controller
-    public void setCitasController(CitasController controller){
+    public void setCitasController(CitasController controller) {
         this.citasController = controller;
-    } 
+    }
 
     private boolean validarEmail() {
-
         String email = emailpac.getText().trim();
-              // Expresión regular para validar el email
-        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-
-        emailValido = email.matches(regex);
-
-            // Vacío = válido (campo opcional)
-            if (email.isEmpty()) {
-                emailValido = true;
-                return true;
-            }
-            else{
-                 if (emailValido) {
-                    return true;
-                 }else{
-                emailpac.setStyle("-fx-border-color: red;");
-                emailpac.setText("Email no válido");
-            }
+        if (email.isEmpty()) {
+            return true; // el email no es obligatorio
         }
-
-      
-
-            return emailValido;
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            mostrarAlerta(Alert.AlertType.WARNING, "El email no es válido.");
+            return false;
         }
+        return true;
+    }
 
-
-    @FXML
     private void comprobarDni() {
         String dni = dnipac.getText().trim().toUpperCase();
-        if (dni.isEmpty())
-            return;
-
-        if (validarDni(dni)) {
-            dnipac.setStyle("");
-            dnipac.setText(dni);
-        } else {
-            dnipac.setStyle("-fx-border-color: red;");
-            dnipac.setText("Mal Formato DNI/NIE");
+        dnipac.setText(dni);
+        if (!dni.isEmpty() && !validarDni(dni)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "El DNI no es válido.");
         }
     }
 
+    // DNI (12345678Z) o NIE (X1234567L)
     private boolean validarDni(String documento) {
-
-        if (documento.matches("\\d{8}[A-Z]")) {
-            int numero = Integer.parseInt(documento.substring(0, 8));
-            char letra = "TRWAGMYFPDXBNJZSQVHLCKE".charAt(numero % 23);
-
-            return letra == documento.charAt(8);
-        }
-
         if (documento.matches("[XYZ]\\d{7}[A-Z]")) {
-
-            String nie = documento
-                    .replace("X", "0")
-                    .replace("Y", "1")
-                    .replace("Z", "2");
-
-            int numero = Integer.parseInt(nie.substring(0, 8));
-            char letra = "TRWAGMYFPDXBNJZSQVHLCKE".charAt(numero % 23);
-
-            return letra == documento.charAt(8);
+            // en el NIE la X, Y, Z valen 0, 1, 2 y después se calcula igual que un DNI
+            documento = "XYZ".indexOf(documento.charAt(0)) + documento.substring(1);
         }
-        return false;
+        if (!documento.matches("\\d{8}[A-Z]")) {
+            return false;
+        }
+        String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+        int numero = Integer.parseInt(documento.substring(0, 8));
+        return documento.charAt(8) == letras.charAt(numero % 23);
     }
 
-    /// letras capitales
-
+    // que la primera letra de cada palabra esté en mayúscula y el resto en minúscula ("juan perez" -> "Juan Perez")
     private String letrasCapitales(String texto) {
-        String[] palabras = texto.toLowerCase().trim().split("\\s+");
+        String[] palabras = texto.trim().split("\\s+");
         StringBuilder resultado = new StringBuilder();
-
         for (String palabra : palabras) {
-            if (!palabra.isEmpty()) {
-                resultado.append(Character.toUpperCase(palabra.charAt(0)))
-                        .append(palabra.substring(1))
-                        .append(" ");
+            if (palabra.length() > 0) {
+                resultado.append(Character.toUpperCase(palabra.charAt(0)));
+                resultado.append(palabra.substring(1).toLowerCase());
+                resultado.append(" ");
             }
         }
         return resultado.toString().trim();
     }
 
-    /// validar movil
-    @FXML
     private void comprobarMovil() {
-        String movil = movilpac.getText();
-        if (movil.isEmpty())
-            return;
-
-        if (validarMovil(movil)) {
-            movilpac.setStyle("");
-            movilpac.setText(movil);
-        } else {
-            movilpac.setStyle("-fx-border-color: red;");
-            movilpac.setText("Movil no válido");
+        String movil = movilpac.getText().trim();
+        if (!movil.isEmpty() && !validarMovil(movil)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "El móvil debe tener 9 números y empezar por 6 o 7.");
         }
     }
 
     private boolean validarMovil(String telefono) {
-        if (telefono.length() != 9) {
-            return false;
-        }
-        return telefono.matches("[67][0-9]{8}");
+        return telefono.matches("[67]\\d{8}");
     }
 
-    // cargamos provinias al lanzar le programa
+    // Lee data/municipios.json, que tiene dos listas: "provincias" y "municipios" (cada uno con "id" y "nm")
+    private JsonObject leerMunicipiosJson() {
+        return JsonParser.parseReader(new InputStreamReader(
+                getClass().getResourceAsStream("/com/clase/data/municipios.json"))).getAsJsonObject();
+    }
 
     private void cargarProvincias() {
-
-        // Abrimos el fichero JSON que está dentro de resources
-        // usamos la clase de java InputStrem que lee datos en este caso de un fichero
-
-        InputStream is = getClass()
-                .getResourceAsStream("/com/clase/data/municipios.json");
-
-        // Leemos el JSON y lo convertimos en un objeto JsonObject
-        JsonObject json = JsonParser.parseReader(
-                new InputStreamReader(is)).getAsJsonObject();
-
-        // Obtenemos el array "provincias" del JSON
-        JsonArray provincias = json.getAsJsonArray("provincias");
-
-        // Recorremos todas las provincias
-        for (var provincia : provincias) {
-
-            // Cada elemento del array es un objeto JSON
-            JsonObject p = provincia.getAsJsonObject();
-
-            // Obtenemos el nombre de la provincia
-            // y lo añadimos al ComboBox
-            propac.getItems().add(
-                    p.get("nm").getAsString());
+        for (JsonElement provincia : leerMunicipiosJson().getAsJsonArray("provincias")) {
+            propac.getItems().add(provincia.getAsJsonObject().get("nm").getAsString());
         }
-
     }
 
+    // Solo los municipios de la provincia elegida: su id empieza por el id de la provincia
     private void cargarMunicipios() {
+        munipac.getItems().clear();
+        String provinciaElegida = propac.getValue();
+        if (provinciaElegida == null) {
+            return;
+        }
 
-        // Abrimos de nuevo el fichero JSON
-        InputStream is = getClass()
-                .getResourceAsStream("/com/clase/data/municipios.json");
-
-        // Convertimos el contenido del fichero en un JsonObject
-        JsonObject json = JsonParser.parseReader(
-                new InputStreamReader(is)).getAsJsonObject();
-
-        // Obtenemos los dos arrays que necesitamos
-        JsonArray provincias = json.getAsJsonArray("provincias");
-        JsonArray municipios = json.getAsJsonArray("municipios");
-
-        // Obtenemos el nombre de la provincia seleccionada
-        String nombreProvincia = propac.getValue();
-
-        // Variable donde guardaremos el código de la provincia
-        String idProvincia = "";
-
-        // Recorremos las provincias
-        for (var provincia : provincias) {
-
+        JsonObject json = leerMunicipiosJson();
+        String idProvincia = null;
+        for (JsonElement provincia : json.getAsJsonArray("provincias")) {
             JsonObject p = provincia.getAsJsonObject();
-
-            // Comprobamos si es la provincia seleccionada
-            if (p.get("nm").getAsString().equals(nombreProvincia)) {
-
-                // Obtenemos su código
+            if (p.get("nm").getAsString().equals(provinciaElegida)) {
                 idProvincia = p.get("id").getAsString();
-
-                // Ya hemos encontrado la provincia
                 break;
             }
         }
+        if (idProvincia == null) {
+            return;
+        }
 
-        // Eliminamos los municipios que pudiera haber
-        // de una selección anterior muy importante sino agrega municipios
-        munipac.getItems().clear();
-
-        // Recorremos todos los municipios
-        for (var municipio : municipios) {
-
+        JsonArray municipios = json.getAsJsonArray("municipios");
+        for (JsonElement municipio : municipios) {
             JsonObject m = municipio.getAsJsonObject();
-
-            // Comprobamos los dos primeros caracteres del código
             if (m.get("id").getAsString().startsWith(idProvincia)) {
-
-                // Si pertenecen a la provincia,
-                // añadimos su nombre al ComboBox
-                munipac.getItems().add(
-                        m.get("nm").getAsString());
+                munipac.getItems().add(m.get("nm").getAsString());
             }
         }
     }
 
     @FXML
     private void cleanFormpac() {
-        dnipac.setText("");
-        apelpac.setText("");
-        nompac.setText("");
-        movilpac.setText("");
-        emailpac.setText("");
+        tablaPacientes.getSelectionModel().clearSelection();
+        dnipac.clear();
+        nompac.clear();
+        apelpac.clear();
         nacpac.setValue(null);
-        dirpac.setText("");
-        propac.getSelectionModel().clearSelection();
-        munipac.getSelectionModel().clearSelection();
+        movilpac.clear();
+        emailpac.clear();
+        dirpac.clear();
+        propac.setValue(null);
+        munipac.setValue(null);
+
+        pacienteexiste = false;
     }
-   
-   
-    // FUNCIONES CON BASE DE DATOS
+
     @FXML
     private void guardarPaciente() {
-        String dni = dnipac.getText();
-        String apellidos = apelpac.getText();
-        String nombre = nompac.getText();
-        LocalDate fechaNacimiento = nacpac.getValue();
-        String movil = movilpac.getText();
-        String email = emailpac.getText();
-        String direccion = dirpac.getText();
-        String provincia = propac.getValue();
-        String municipio = munipac.getValue();
-        // Creamos el objeto Paciente
-        Paciente paciente = new Paciente(
-                dni,
-                apellidos,
-                nombre,
-                movil,
-                email, fechaNacimiento,
-                direccion,
-                provincia,
-                municipio);
-     
-        if (pacienteexiste) {
-            Alert alert3 = new Alert(Alert.AlertType.CONFIRMATION);
-            alert3.setTitle("Aviso");
-            alert3.setHeaderText(null);
-            alert3.setContentText("¿Desea Modificar Datos Paciente?");
-            Optional<ButtonType> result = alert3.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK){
-                // Si el paciente ya existe, lo actualizamos en la base de datos
-                PacienteDAOMySQL dao = new PacienteDAOMySQL();
-                dao.modificarPaciente(paciente.getDni(), paciente);
-                Alert alert4 = new Alert(Alert.AlertType.INFORMATION);
-                alert4.setTitle("Información");
-                alert4.setHeaderText(null);
-                alert4.setContentText("Paciente Modificado");
-                alert4.showAndWait();
-            }else{
-                return;
-            }
-            pacienteexiste = false; //importante
-       
-        } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Aviso");
-            alert.setHeaderText(null);
-            alert.setContentText("¿Desea Grabar Nuevo Paciente?");
-            Optional<ButtonType> result2 = alert.showAndWait();
-            if (result2.isPresent() && result2.get() == ButtonType.OK){
-            // Si el paciente no existe, lo guardamos en la base de datos
-                PacienteDAOMySQL dao = new PacienteDAOMySQL();
-                dao.guardarPaciente(paciente);
-                Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-                alert2.setTitle("Información");
-                alert2.setHeaderText(null);
-                alert2.setContentText("Paciente Guardado");
-                alert.showAndWait();
-            }else{
-                return;
-              }
-        }
-        
-        //recargar la tabla con el nuevo paciente
-        cargarPacientes();
-    }
-
-    // cargar pacientes en la tabla 
-    @FXML
-    private void cargarPacientes() { 
-        // Creamos el DAO 
-        PacienteDAOMySQL dao = new PacienteDAOMySQL(); 
-        // Obtenemos los pacientes de la base de datos 
-        List<Paciente> pacientes = dao.cargarPacientes(); 
-        // Los mostramos en la tabla 
-        tablaPacientes.getItems().setAll(pacientes); }
-
-   @FXML 
-   private void cargarPaciente() {
-        Paciente pacienteselect = tablaPacientes
-                .getSelectionModel()
-                .getSelectedItem(); //carga los datos de la fila seleccionado
-
-        if (pacienteselect == null) {
+        String dni = dnipac.getText().trim().toUpperCase();
+        if (!validarDni(dni)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "El DNI no es válido.");
             return;
-        } else {
-            pacienteexiste = true;
-            // Enviamos el paciente al controlador de citas
-            if (citasController != null) {
-                citasController.cargarDatosPaciente(pacienteselect);
+        }
+        emailValido = validarEmail();
+        if (!emailValido) {
+            return;
         }
 
-    }
+        LocalDate fechaNacimiento = nacpac.getValue();
+        Paciente paciente = new Paciente(
+            dni,
+            letrasCapitales(apelpac.getText()),
+            letrasCapitales(nompac.getText()),
+            movilpac.getText().trim(),
+            emailpac.getText().trim(),
+            fechaNacimiento,
+            dirpac.getText(),
+            propac.getValue(),
+            munipac.getValue()
+        );
+
+        if (!confirmar(pacienteexiste ? "¿Desea modificar los datos del paciente?" : "¿Desea grabar el nuevo paciente?")) {
+            return;
+        }
 
         PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        if (pacienteexiste) {
+            // El DNI original es el del paciente seleccionado en la tabla (por si se ha cambiado en el formulario)
+            String dniOriginal = tablaPacientes.getSelectionModel().getSelectedItem().getDni();
+            if (dao.modificarPaciente(dniOriginal, paciente)) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente modificado correctamente.");
+            } else {
+                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo modificar el paciente. Mira la consola para ver el error.");
+                return;
+            }
+        } else {
+            if (dao.guardarPaciente(paciente)) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente guardado correctamente.");
+            } else {
+                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo guardar el paciente. Mira la consola para ver el error.");
+                return;
+            }
+        }
+        cargarPacientes();
+        cleanFormpac();
+    }
 
+    @FXML
+    private void cargarPacientes() {
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        tablaPacientes.getItems().setAll(dao.cargarPacientes());
+    }
+
+    // Rellena el formulario con los datos del paciente seleccionado en la tabla
+    @FXML
+    private void cargarPaciente() {
+        Paciente pacienteselect = tablaPacientes.getSelectionModel().getSelectedItem();
+        if (pacienteselect == null) {
+            return;
+        }
+
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
         Paciente paciente = dao.buscarPaciente(pacienteselect.getDni());
-
         if (paciente == null) {
             return;
         }
 
         dnipac.setText(paciente.getDni());
-        apelpac.setText(paciente.getApellidos());
         nompac.setText(paciente.getNombre());
+        apelpac.setText(paciente.getApellidos());
+        nacpac.setValue(paciente.getNacimiento());
         movilpac.setText(paciente.getMovil());
         emailpac.setText(paciente.getEmail());
-        nacpac.setValue(paciente.getNacimiento());
         dirpac.setText(paciente.getDireccion());
         propac.setValue(paciente.getProvincia());
-        //cargarMunicipios();  comprobar esto
         munipac.setValue(paciente.getMunicipio());
-            } 
-    
-    @FXML 
-    private void eliminarPaciente() {
-        Paciente seleccionado = tablaPacientes
-                .getSelectionModel()
-                .getSelectedItem();
 
-        if (seleccionado == null) {
-            return;
-        }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Aviso");
-        alert.setHeaderText(null);
-        alert.setContentText("¿Desea Eliminar Datos Paciente?");
-        Optional<ButtonType> result = alert.showAndWait();         
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            PacienteDAOMySQL dao = new PacienteDAOMySQL();
-            dao.eliminarPaciente(seleccionado.getDni());
-            Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-            alert2.setTitle("Aviso");
-            alert2.setHeaderText(null);
-            alert2.setContentText("Paciente Eliminado de Base de Datos");
-            alert2.showAndWait();    
-        } else {
-            return;
-        }             
+        pacienteexiste = true;
 
-        // Recargamos la tabla de pacientes
-        cargarPacientes();
+        // el panel de citas muestra las citas de este paciente
+        if (citasController != null) {
+            citasController.cargarDatosPaciente(paciente);
         }
-    @FXML 
-    private void buscaPacdni() {
-        PacienteDAOMySQL dao = new PacienteDAOMySQL();
-        Paciente paciente = dao.buscaPacdni(dnipac.getText());
-        if (paciente == null){
-            Alert alert2 = new Alert(Alert.AlertType.WARNING);
-            alert2.setTitle("Aviso");
-            alert2.setHeaderText(null);
-            alert2.setContentText("Paciente no existe en BBDD");
-            alert2.showAndWait();    
-            return;
-        } else {
-            pacienteexiste = true;
-              // Enviamos el paciente al controlador de citas
-            if (citasController != null) {
-                citasController.cargarDatosPaciente(paciente);
-        }
-
-        }
-        dnipac.setText(paciente.getDni());
-        apelpac.setText(paciente.getApellidos());
-        nompac.setText(paciente.getNombre());
-        movilpac.setText(paciente.getMovil());
-        emailpac.setText(paciente.getEmail());
-        nacpac.setValue(paciente.getNacimiento());
-        dirpac.setText(paciente.getDireccion());
-        propac.setValue(paciente.getProvincia());
-        //cargarMunicipios();  comprobar esto
-        munipac.setValue(paciente.getMunicipio());
-        }  
     }
+
+    // Lo llama el botón Eliminar: borra el paciente cuyo DNI está en el formulario
+    @FXML
+    private void eliminarPaciente() {
+        String dni = dnipac.getText().trim();
+        if (dni.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Introduce el DNI del paciente para eliminarlo.");
+            return;
+        }
+        if (!confirmar("¿Desea eliminar el paciente " + dni + "?")) {
+            return;
+        }
+        PacienteDAOMySQL dao = new PacienteDAOMySQL();
+        if (dao.eliminarPaciente(dni)) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente eliminado correctamente.");
+            cargarPacientes();
+            cleanFormpac();
+        } else {
+            mostrarAlerta(Alert.AlertType.ERROR, "No se pudo eliminar el paciente (puede que tenga citas). Mira la consola.");
+        }
+    }
+
+    @FXML
+    private void buscaPacdni() {
+        String dni = dnipac.getText().trim().toUpperCase();
+        if (!validarDni(dni)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Introduce un DNI válido para buscar.");
+            return;
+        }
+
+        cargarPacientes();
+        for (Paciente paciente : tablaPacientes.getItems()) {
+            if (dni.equals(paciente.getDni())) {
+                tablaPacientes.getSelectionModel().select(paciente);
+                cargarPaciente();
+                return;
+            }
+        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "No existe ningún paciente con el DNI " + dni + ".");
+    }
+
+    private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle("Xestión Pacientes");
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
+
+    // Pregunta antes de guardar/borrar. Devuelve true si se pulsa Aceptar
+    private boolean confirmar(String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Xestión Pacientes");
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        Optional<ButtonType> respuesta = alerta.showAndWait();
+        return respuesta.isPresent() && respuesta.get() == ButtonType.OK;
+    }
+}

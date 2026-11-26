@@ -13,17 +13,16 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/com/clase/ventana.fxml")
-        );
-            Scene scene = new Scene(loader.load(), 1280, 800);
-            stage.setTitle("Sanidad Teis");
-            stage.setScene(scene);
-            stage.setMaximized(true);
-            stage.show();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clase/ventana.fxml"));
+   
+        Scene scene = new Scene(loader.load(), 1280, 720);
+        stage.setTitle("Xestión Pacientes");
+        stage.setScene(scene);
+        stage.show();
     }
+
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 
 }
