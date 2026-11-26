@@ -1,237 +1,421 @@
-package com.clase;
+    package com.clase;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+    import com.google.gson.JsonArray;
+    import com.google.gson.JsonObject;
+    import com.google.gson.JsonParser;
 
-import com.clase.modelo.Doctor;
-import com.clase.persistencia.DoctorDAOMySQL;
+    import com.clase.modelo.Doctor;
+     
+    import com.clase.persistencia.DoctorDAOMySQL;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+    import java.net.URL;
+    import java.util.ResourceBundle;
 
-public class DoctoresController implements Initializable {
-    // Los nombres tienen que coincidir EXACTAMENTE con los fx:id de doctores.fxml
-    @FXML
-    private TextField iddoc, apeldoc, nomdoc, movildoc, emaildoc;
-    @FXML
-    private ComboBox<String> espedoc;
-    @FXML
-    private Button btnguardardoc, btndeldoc;
-    @FXML
-    private RadioButton coledocno, coledocsi;
-    @FXML
-    private ToggleGroup grupocoledoc;
-    @FXML
-    private TableView<Doctor> tablaDoctores;
-    @FXML
-    private TableColumn<Doctor, String> coliddoc, colapeldoc, colnomdoc, colmovildoc, colespedoc;
+    import java.io.InputStream;
+    import java.io.InputStreamReader;
 
-    // para pasar el doctor seleccionado al panel de citas
-    private CitasController citasController;
+    import javafx.fxml.FXML;
+    import javafx.fxml.Initializable;
+    import javafx.scene.control.Alert;
+    import javafx.scene.control.Button;
+    import javafx.scene.control.ButtonType;
+    import javafx.scene.control.RadioButton;
+    import javafx.scene.control.TextField;
+    import javafx.scene.control.ComboBox;
+
+    import javafx.scene.control.TableView;
+    import javafx.scene.control.TableColumn;
+    import javafx.beans.property.SimpleObjectProperty;
+    //import javafx.scene.control.cell.PropertyValueFactory; //para usarlo en la tabla de Doctors
+    import javafx.beans.property.SimpleStringProperty;
+    import java.util.List;
+    import java.util.Optional;
+
+    public class DoctoresController implements Initializable {
+
+        @FXML
+        private TextField iddoc, apeldoc, nomdoc, movildoc, emaildoc;
+        @FXML
+        private ComboBox<String> espedoc;
+        @FXML
+        private Button btnguardardoc, btndeldoc;
+        @FXML 
+        private RadioButton coledocno, coledocsi;   
+
+        // componentes de la tabla
+        @FXML
+        private TableView<Doctor> tablaDoctores;
+
+        @FXML
+        private TableColumn<Doctor, Integer> coliddoc;
+
+        @FXML
+        private TableColumn<Doctor, String> colapeldoc;
+
+        @FXML
+        private TableColumn<Doctor, String> colnomdoc;
+
+        @FXML
+        private TableColumn<Doctor, String> colmovildoc;
+
+        @FXML
+        private TableColumn<Doctor, String> colespedoc;
+
+        boolean doctorexiste = false;
+        boolean emailValido = true;
+
+        // referencia al controlador de citas para poder enviarle el doctor seleccionado
+        private CitasController citasController;
+
+        // implementación de los métodos de la interfaz Initializable
+        // Este método se llama automáticamente cuando se carga la vista FXML
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        emaildoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                validarEmail();
-            }
-        });
-        movildoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                comprobarMovil();
+
+            // Configuramos las columnas de la tabla para que muestren los datos de los
+            // Doctors
+
+            coliddoc.setCellValueFactory(
+            data -> new SimpleObjectProperty<Integer>(data.getValue().getID()));
+
+            colapeldoc.setCellValueFactory(
+                    data -> new SimpleStringProperty(data.getValue().getApellidos()));
+
+            colnomdoc.setCellValueFactory(
+                    data -> new SimpleStringProperty(data.getValue().getNombre()));
+
+            colmovildoc.setCellValueFactory(
+                    data -> new SimpleStringProperty(data.getValue().getMovil()));
+
+            colespedoc.setCellValueFactory(
+                    data -> new SimpleStringProperty(data.getValue().getEspecialidad()));
+
+            nomdoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    String nombre = letrasCapitales(nomdoc.getText());
+                    nomdoc.setText(nombre);
+                }
+            });
+
+            apeldoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    String nombre = letrasCapitales(apeldoc.getText());
+                    apeldoc.setText(nombre);
+                }
+            });
+
+            movildoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    comprobarMovil();
+                }
+            });
+
+
+            emaildoc.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    if (!validarEmail()) {
+                        emaildoc.requestFocus();
+                    }
+                }
+            });
+
+        //carga un Doctor al seleccionarlo en la tabla 
+        // en el formulario para poder modificarlo o eliminarlo
+
+        tablaDoctores.getSelectionModel()
+        .selectedItemProperty()
+        .addListener((observable, anterior, nuevo) -> {
+
+            if (nuevo != null) {
+                cargarDoctor();
             }
         });
 
+        // manejador de provinvicas, cargamos provincias y luego el evento
+        // que carga los municipios de cada provincia
         cargarEspecialidades();
 
-        coliddoc.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getID())));
-        colapeldoc.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getApellidos()));
-        colnomdoc.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getNombre()));
-        colmovildoc.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getMovil()));
-        colespedoc.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEspecialidad()));
-
         cargarDoctors();
+
+       
     }
 
-    public void setCitasController(CitasController citasController) {
-        this.citasController = citasController;
+    // Inicializamos el controlador de citas como null
+        public void setCitasController(CitasController citasController) {
+            this.citasController = citasController;
     }
+    // FUNCIONES AUXILIARES DE DoctorS
+   
+    /// letras capitales
 
-    // que la primera letra de cada palabra esté en mayúscula y el resto en minúscula
     private String letrasCapitales(String texto) {
-        String[] palabras = texto.trim().split("\\s+");
+        String[] palabras = texto.toLowerCase().trim().split("\\s+");
         StringBuilder resultado = new StringBuilder();
+
         for (String palabra : palabras) {
-            if (palabra.length() > 0) {
-                resultado.append(Character.toUpperCase(palabra.charAt(0)));
-                resultado.append(palabra.substring(1).toLowerCase());
-                resultado.append(" ");
+            if (!palabra.isEmpty()) {
+                resultado.append(Character.toUpperCase(palabra.charAt(0)))
+                        .append(palabra.substring(1))
+                        .append(" ");
             }
         }
         return resultado.toString().trim();
     }
 
+    // validar email
     private boolean validarEmail() {
-        String email = emaildoc.getText().trim();
-        if (!email.isEmpty() && !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            mostrarAlerta(Alert.AlertType.WARNING, "El email no es válido.");
-            return false;
-        }
-        return true;
-    }
 
+        String email = emaildoc.getText().trim();
+        // Expresión regular para validar el email
+        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+
+        emailValido = email.matches(regex);
+          
+            // Vacío = válido (campo opcional)
+            if (email.isEmpty()) {
+                emailValido = true;
+                return true;
+            }
+            else{
+                 if (emailValido) {
+                    return true;
+                 }else{
+                emaildoc.setStyle("-fx-border-color: red;");
+                emaildoc.setText("Email no válido");
+                emaildoc.setStyle("-fx-border-color: red;");
+                emaildoc.setText("Email no válido");
+            }
+        }
+        return emailValido;
+        }
+
+    /// validar movil
+    @FXML
     private void comprobarMovil() {
-        String movil = movildoc.getText().trim();
-        if (!movil.isEmpty() && !validarMovil(movil)) {
-            mostrarAlerta(Alert.AlertType.WARNING, "El móvil debe tener 9 números y empezar por 6 o 7.");
+        String movil = movildoc.getText();
+        if (movil.isEmpty())
+            return;
+
+        if (validarMovil(movil)) {
+            movildoc.setStyle("");
+            movildoc.setText(movil);
+        } else {
+            movildoc.setStyle("-fx-border-color: red;");
+            movildoc.setText("Móvil No válido");
         }
     }
 
     private boolean validarMovil(String telefono) {
-        return telefono.matches("[67]\\d{8}");
+        return telefono.matches("[67][0-9]{8}");
     }
 
+    // cargamos provinias al lanzar le programa
+
     private void cargarEspecialidades() {
-        espedoc.getItems().setAll("Medicina General", "Pediatría", "Cardiología", "Dermatología",
-                "Traumatología", "Ginecología", "Neurología", "Oftalmología");
+
+        // Abrimos el fichero JSON que está dentro de resources
+        // usamos la clase de java InputStrem que lee datos en este caso de un fichero
+
+        InputStream is = getClass()
+                .getResourceAsStream("/com/clase/data/especialidades.json");
+
+        // Leemos el JSON y lo convertimos en un objeto JsonObject
+        JsonObject json = JsonParser.parseReader(
+                new InputStreamReader(is)).getAsJsonObject();
+
+        // Obtenemos el array "provincias" del JSON
+        JsonArray especialidades = json.getAsJsonArray("especialidades");
+
+        // Recorremos todas las provincias
+        for (var especialidad : especialidades) {
+
+            // Cada elemento del array es un objeto JSON
+            JsonObject p = especialidad.getAsJsonObject();
+
+            // Obtenemos el nombre de la provincia
+            // y lo añadimos al ComboBox
+            espedoc.getItems().add(
+                    p.get("nombre").getAsString());
+        }
+
     }
 
     @FXML
     private void cleanFormdoc() {
-        tablaDoctores.getSelectionModel().clearSelection();
-        iddoc.clear();
-        nomdoc.clear();
-        apeldoc.clear();
-        grupocoledoc.selectToggle(null);
-        movildoc.clear();
-        emaildoc.clear();
-        espedoc.setValue(null);
-    }
+        doctorexiste = false;
 
+        iddoc.setText("");
+        apeldoc.setText("");
+        nomdoc.setText("");
+        movildoc.setText("");
+        emaildoc.setText("");
+        coledocno.setSelected(false);
+        coledocsi.setSelected(false);
+        espedoc.getSelectionModel().clearSelection();
+          //recargar la tabla con el nuevo Doctor
+        cargarDoctors();          
+        }
+        
+   
+// =============== FUNCIONES CON BASE DE DATOS =======================
     @FXML
     private void guardarDoctor() {
-        if (nomdoc.getText().trim().isEmpty()
-                || apeldoc.getText().trim().isEmpty()
-                || movildoc.getText().trim().isEmpty()
-                || emaildoc.getText().trim().isEmpty()
-                || espedoc.getValue() == null
-                || grupocoledoc.getSelectedToggle() == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Rellena todos los campos.");
-            return;
-        }
-        if (!validarEmail()) {
-            return;
-        }
+        String id = iddoc.getText();  
+        String apellidos = apeldoc.getText();
+        String nombre = nomdoc.getText();
+        String movil = movildoc.getText();
+        String email = emaildoc.getText();
+        Boolean colegiado = coledocsi.isSelected();
+        String especialidad = espedoc.getValue();
+      
+        // Creamos el objeto Doctor
+        Doctor Doctor = new Doctor(
+                apellidos,
+                nombre,
+                movil,
+                email, 
+                colegiado,
+                especialidad
+            );  
+         
+        if (doctorexiste) {
+            // Si el Doctor ya existe, lo actualizamos en la base de datos
+             // Si el Doctor no existe, lo guardamos en la base de datos
+            Alert alert3 = new Alert(Alert.AlertType.CONFIRMATION);
+            alert3.setTitle("Aviso");
+            alert3.setHeaderText(null);
+            alert3.setContentText("¿Desea Modificar datos del Doctor?");
+            Optional<ButtonType> result2 = alert3.showAndWait();
+            if (result2.isPresent() && result2.get() == ButtonType.OK){
+                DoctorDAOMySQL dao = new DoctorDAOMySQL();
+                dao.modificarDoctor(Integer.parseInt(id), Doctor);
+                doctorexiste = false; //importante sino siempre graba
+                Alert alert4 = new Alert(Alert.AlertType.INFORMATION);
+                alert4.setTitle("Aviso");
+                alert4.setHeaderText(null);
+                alert4.setContentText("Doctor modificado en Base de Datos");
+                alert4.showAndWait();
 
-        Doctor doctor = new Doctor(
-            letrasCapitales(apeldoc.getText()),
-            letrasCapitales(nomdoc.getText()),
-            movildoc.getText().trim(),
-            emaildoc.getText().trim(),
-            coledocsi.isSelected(),
-            espedoc.getValue()
-        );
-
-        DoctorDAOMySQL dao = new DoctorDAOMySQL();
-        if (!iddoc.getText().isEmpty()) {
-            // El doctor ya existe: se modifica
-            if (dao.modificarDoctor(Integer.parseInt(iddoc.getText()), doctor)) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Doctor modificado correctamente.");
-            } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo modificar el doctor. Mira la consola para ver el error.");
+            } else{
                 return;
             }
-        } else {
-            if (dao.guardarDoctor(doctor)) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Doctor guardado correctamente.");
-            } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo guardar el doctor. Mira la consola para ver el error.");
-                return;
-            }
-        }
-        cargarDoctors();
-        cleanFormdoc();
-    }
 
-    // Doctores que se ven ahora en la tabla (para el informe hecho con una lista de objetos)
-    public java.util.List<Doctor> getDoctoresTabla() {
-        return tablaDoctores.getItems();
+            //buscadocid();
+        } else { 
+            
+            // Si el Doctor no existe, lo guardamos en la base de datos
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Desea Grabar el Doctor?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                {
+                DoctorDAOMySQL dao = new DoctorDAOMySQL();
+                dao.guardarDoctor(Doctor);
+                Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                alert2.setTitle("Aviso");
+                alert2.setHeaderText(null);
+                alert2.setContentText("Doctor dado de alta en Base de Datos");
+                alert2.showAndWait();
+                } else{
+                    return;
+                }    
+          }  
+        //recargar la tabla con el nuevo Doctor
+        cargarDoctors(); 
     }
-
-    // Especialidad elegida en el combo (la usa el informe de doctores; null = todas)
-    public String getEspecialidadSeleccionada() {
-        return espedoc.getValue();
-    }
-
-    private void cargarDoctors() {
-        DoctorDAOMySQL dao = new DoctorDAOMySQL();
-        tablaDoctores.getItems().setAll(dao.cargarDoctores());
-    }
-
-    // Rellena el formulario con el doctor seleccionado en la tabla
+    
+    // cargar Doctors en la tabla 
     @FXML
-    private void cargarDoctor() {
-        Doctor doctorselect = tablaDoctores.getSelectionModel().getSelectedItem();
+    private void cargarDoctors() { 
+        // Creamos el DAO 
+        DoctorDAOMySQL dao = new DoctorDAOMySQL(); 
+        // Obtenemos los Doctors de la base de datos 
+        List<Doctor> Doctores = dao.cargarDoctores(); 
+        // Los mostramos en la tabla 
+        tablaDoctores.getItems().setAll(Doctores); 
+        tablaDoctores.refresh();
+        }
+        
+        
+  @FXML 
+   private void cargarDoctor() {
+        coledocno.setSelected(false);
+        coledocsi.setSelected(false);
+        Doctor doctorselect = tablaDoctores
+                .getSelectionModel()
+                .getSelectedItem(); //carga los datos de la fila seleccionado
+
         if (doctorselect == null) {
             return;
+        } else {
+            doctorexiste = true;
+            citasController.cargarDatosDoctor(doctorselect); // enviamos el doctor seleccionado al controlador de citas
         }
-
+      
         DoctorDAOMySQL dao = new DoctorDAOMySQL();
+
         Doctor doctor = dao.buscaDocporId(doctorselect.getID());
+
         if (doctor == null) {
             return;
         }
 
-        iddoc.setText(String.valueOf(doctor.getID()));
-        nomdoc.setText(doctor.getNombre());
+        iddoc.setText(Integer.toString(doctor.getID()));
         apeldoc.setText(doctor.getApellidos());
-        if (doctor.getColegiado()) {
+        nomdoc.setText(doctor.getNombre());
+        movildoc.setText(doctor.getMovil());
+        emaildoc.setText(doctor.getEmail());
+       
+        if (doctor.getColegiado() == true ){
             coledocsi.setSelected(true);
         } else {
             coledocno.setSelected(true);
-        }
-        movildoc.setText(doctor.getMovil());
-        emaildoc.setText(doctor.getEmail());
+        //cargarMunicipios();  comprobar esto
+            }
         espedoc.setValue(doctor.getEspecialidad());
-
-        // el panel de citas recibe el id del doctor
-        if (citasController != null) {
-            citasController.cargarDatosDoctor(doctor);
-        }
-    }
-
-    @FXML
+        }   
+    
+    
+    @FXML 
     private void deleteDoctor() {
-        Doctor doctorselect = tablaDoctores.getSelectionModel().getSelectedItem();
-        if (doctorselect == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un doctor de la tabla para eliminarlo.");
+        Doctor seleccionado = tablaDoctores
+                .getSelectionModel()
+                .getSelectedItem();
+        if (seleccionado == null) {
             return;
         }
-
-        DoctorDAOMySQL dao = new DoctorDAOMySQL();
-        if (dao.eliminarDoctor(doctorselect.getID())) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Doctor eliminado correctamente.");
-            cargarDoctors();
-            cleanFormdoc();
-        } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "No se pudo eliminar el doctor (puede que tenga citas). Mira la consola.");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Aviso");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Desea Eliminar el Doctor");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK){
+            DoctorDAOMySQL dao = new DoctorDAOMySQL();
+            dao.eliminarDoctor(seleccionado.getID());
+            Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+            alert2.setTitle("Aviso");
+            alert2.setHeaderText(null);
+            alert2.setContentText("Doctor dado de baja en Base de Datos");
+            alert2.showAndWait();      
+        }else{
+            return;
+        }
+        // Recargamos la tabla de Doctors
+        cargarDoctors();
+        }
+      
+    
+    @FXML 
+    private void buscadocsporEspecialidad(){ 
+       
+        
+        DoctorDAOMySQL dao = new DoctorDAOMySQL(); 
+        // Obtenemos los Doctors de la base de datos 
+        List<Doctor> Doctores = dao.cargardoctoresEspec(espedoc.getValue()); 
+        // Los mostramos en la tabla 
+        tablaDoctores.getItems().setAll(Doctores); 
         }
     }
-
-    private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle("Xestión Doctores");
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
-    }
-}

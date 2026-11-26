@@ -1,12 +1,14 @@
 package com.clase.persistencia;
+import com.clase.modelo.Paciente;
 import java.util.List;
 
-import com.clase.modelo.Paciente;
+//Es la interfaz. Solo dice qué operaciones podemos hacer con un paciente, no cómo se hacen.
 
 public interface PacienteDAO {
-    boolean guardarPaciente(Paciente paciente);
-    List<Paciente> cargarPacientes();
-    Paciente buscarPaciente(String dni);
-    boolean modificarPaciente(String dni, Paciente paciente);
-    boolean eliminarPaciente(String dni);
+ void guardarPaciente(Paciente paciente);
+ List<Paciente> cargarPacientes();
+ void eliminarPaciente(String dni);
+ Paciente buscarPaciente(String dni);
+ void modificarPaciente(String dni, Paciente paciente);
+ Paciente buscaPacdni(String dni);
 }

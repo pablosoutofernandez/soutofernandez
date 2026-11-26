@@ -1,60 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.VentanaController">
+
    <children>
-      <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <menus>
-            <Menu mnemonicParsing="false" text="Archivo">
-               <items>
-                  <MenuItem mnemonicParsing="false" fx:id="abrirVentana" onAction="#abrirDir" text="Abrir carpeta" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" fx:id="menuSalir" onAction="#salirApp" text="Salir" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Informes">
-               <items>
-                  <MenuItem mnemonicParsing="false" fx:id="informePacientes" onAction="#informePacientes" text="Informe Pacientes" />
-                  <MenuItem mnemonicParsing="false" fx:id="informeDoctores" onAction="#informeDoctores" text="Informe Doctores" />
-                  <MenuItem mnemonicParsing="false" fx:id="informeTablaDoctores" onAction="#informeTablaDoctores" text="Doctores en pantalla" />
-                  <MenuItem mnemonicParsing="false" fx:id="informePacientesCitas" onAction="#informePacientesCitas" text="Pacientes y sus citas" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" fx:id="imprimirCita" onAction="#imprimirCita" text="Imprimir Cita" />
-                  <MenuItem mnemonicParsing="false" fx:id="informeCitasPaciente" onAction="#informeCitasPaciente" text="Citas del paciente" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Ayuda">
-               <items>
-                  <MenuItem mnemonicParsing="false" fx:id="acercade" onAction="#mostrarAcercade" text="Acerca de" />
-               </items>
-            </Menu>
-         </menus>
-      </MenuBar>
-      <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
-         <tabs>
-            <Tab text="Pacientes">
-               <content>
-                  <fx:include fx:id="panelPacientes" source="pacientes.fxml" />
-               </content>
-            </Tab>
-            <Tab text="Doctores">
-               <content>
-                  <fx:include fx:id="panelDoctores" source="doctores.fxml" />
-               </content>
-            </Tab>
-            <Tab text="Citas">
-               <content>
-                  <fx:include fx:id="panelCitas" source="citas.fxml" />
-               </content>
-            </Tab>
-         </tabs>
-      </TabPane>
+      <VBox AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+         <children>
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="Archivo">
+                  <items>
+                    <MenuItem fx:id="abrirVentana" mnemonicParsing="false" onAction="#abrirDir" text="Abrir" />
+                        <MenuItem mnemonicParsing="false" text="Guardar" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem fx:id="menuSalir" mnemonicParsing="false" onAction="#salirApp" text="Salir">
+                           <accelerator>
+                              <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                        </MenuItem> 
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Informes">
+                  <items>
+                    <MenuItem fx:id="informePacientes" mnemonicParsing="false" onAction="#informePacientes" text="Informe Pacientes" />
+                        <MenuItem mnemonicParsing="false" text="Informe Doctores" />
+                        <MenuItem mnemonicParsing="false" text="Imprimir Cita" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Acerca">
+                  <items>
+                    <MenuItem fx:id="acercade" mnemonicParsing="false" onAction="#mostrarAcercade" text="Acerca de" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <ToolBar prefHeight="5.0" prefWidth="1270.0">
+              <items>
+                  <Button fx:id="btnAbrirdir" mnemonicParsing="false" onAction="#abrirDir" prefHeight="36.0" prefWidth="40.0">
+                     <graphic>
+                        <ImageView fitHeight="33.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../img/abrircarpeta.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Separator orientation="VERTICAL" prefHeight="36.0" />
+                <Button fx:id="btnToolsalir" mnemonicParsing="false" onAction="#salirApp" prefHeight="36.0" prefWidth="40.0">
+                     <graphic>
+                        <ImageView fitHeight="48.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../img/salir.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+              </items>
+            </ToolBar>
+      
+            <TabPane minHeight="-Infinity" prefHeight="840.0" prefWidth="1260.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+      
+               <tabs>
+      
+                <Tab fx:id="panpacientes" text="Pacientes">
+                  <content>
+                      <StackPane>
+                          <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                          </padding>
+      
+                          <fx:include fx:id="panelPacientes" source="pacientes.fxml" />
+                      </StackPane>
+                  </content>
+              </Tab>
+      
+                  <Tab fx:id="pandoctores" text="Doctores">
+                     <content>
+                        <StackPane prefHeight="150.0" prefWidth="200.0">
+                           <children>
+                              <fx:include fx:id="panelDoctores" source="doctores.fxml" />
+                           </children>
+                        </StackPane>
+                     </content></Tab>
+                  <Tab text="   Citas   ">
+                     <content>
+                        <StackPane prefHeight="150.0" prefWidth="200.0">
+                           <children>
+                              <fx:include fx:id="panelCitas" source="citas.fxml" />
+                           </children>
+                        </StackPane>
+                     </content>
+                  </Tab>
+      
+               </tabs>
+      
+            </TabPane>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

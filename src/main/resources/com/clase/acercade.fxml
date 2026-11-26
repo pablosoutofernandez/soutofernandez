@@ -1,29 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="340.0" prefWidth="320.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercadeController">
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clase.AcercadeController">
    <children>
-      <Label text="Sanidad Teis" textFill="#2e8b3d">
-         <font>
-            <Font name="System Bold" size="28.0" />
-         </font>
-      </Label>
-      <Group>
+      <Button fx:id="btnCerrarAcercade" layoutX="278.0" layoutY="324.0" mnemonicParsing="false" onAction="#cerrarAcercade" text="Cerrar" />
+      <VBox alignment="CENTER" layoutX="199.0" layoutY="38.0" prefHeight="255.0" prefWidth="207.0">
          <children>
-            <SVGPath content="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#2e8b3d" scaleX="4.0" scaleY="4.0" />
+            <Label text="Sanidad Teis" textFill="#167c63">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </Label>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../img/salud.png" />
+               </image>
+            </ImageView>
+            <Label text="Version: 0.0.1">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Label>
+            <Label text="Autores: 2º DAM">
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </Label>
          </children>
-      </Group>
-      <Label text="Versión: 0.0.1" />
-      <Button fx:id="btnCerrarAcercade" mnemonicParsing="false" onAction="#cerrarAcercade" text="Cerrar" />
+      </VBox>
    </children>
-   <padding>
-      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-   </padding>
-</VBox>
+</Pane>

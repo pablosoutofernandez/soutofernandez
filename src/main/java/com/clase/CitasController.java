@@ -1,93 +1,167 @@
+
 package com.clase;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
-import com.clase.informes.Informes;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.clase.modelo.Cita;
 import com.clase.modelo.Doctor;
 import com.clase.modelo.Paciente;
 import com.clase.persistencia.CitaDAOMySQL;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableView;
 
 public class CitasController implements Initializable {
-    // Los nombres tienen que coincidir EXACTAMENTE con los fx:id de citas.fxml
 
-    // idcita, citadnipac y citaiddoc no son editables
     @FXML
     private TextField citadnipac, citaiddoc, idcita, motivo;
+
     @FXML
     private CheckBox chkatendida, chkpendiente, chkanulada;
-    @FXML
+
+    @FXML 
     private Label lblCita;
-    @FXML
+
+    @FXML 
     private TableView<Cita> tablaCitas;
+
+     @FXML
+    private TableColumn<Cita, Integer> idcitacol;
+
     @FXML
-    private TableColumn<Cita, String> idcitacol, apeldoccol, espedoccol, fechacitacol, horacitacol, estadocitacol;
+    private TableColumn<Cita, String> apeldoccol;
+
+    @FXML
+    private TableColumn<Cita, String> espedoccol;
+
+    @FXML
+    private TableColumn<Cita, String> fechacitacol;
+
+    @FXML 
+    private TableColumn<Cita, String> horacitacol;
+
+    @FXML 
+    private TableColumn<Cita, String> estadocitacol;
+
+
     @FXML
     private ComboBox<String> horacita;
-    @FXML
-    private DatePicker fechacita;
-    @FXML
-    private TextArea diagnostico, tratamiento;
 
-    // nombre del paciente seleccionado (para el título del informe)
-    private String nombrePaciente = "";
+    @FXML 
+    private DatePicker fechacita;
+
+    @FXML 
+    private TextArea diagnostico, tratamiento;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        idcitacol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getIdcita())));
-        apeldoccol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getApeldoc()));
-        espedoccol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEspedoc()));
-        fechacitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFechacita().toString()));
-        horacitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getHoracita()));
-        estadocitacol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstadocita()));
+        // Configuramos las columnas de la tabla para que muestren los datos de las citas
 
+        idcitacol.setCellValueFactory(
+                data -> new SimpleIntegerProperty(data.getValue().getIdcita()).asObject());
+
+        apeldoccol.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getApeldoc()));
+
+        espedoccol.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getEspedoc()));
+
+        fechacitacol.setCellValueFactory(
+                data -> new SimpleObjectProperty<>(data.getValue().getFechacita().toString()));
+
+        horacitacol.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getHoracita()));
+
+        estadocitacol.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getEstadocita()));
+
+
+// Carga una cita al seleccionarla en la tabla
+// en el formulario para poder modificarla o eliminarla
+
+tablaCitas.getSelectionModel()
+        .selectedItemProperty()
+        .addListener((observable, anterior, nuevo) -> {
+
+            if (nuevo != null) {
+                cargarCita();
+            }
+        });
+
+        // Inicialización de la vista de citas
         cargarHorario();
-        chkpendiente.setSelected(true);
-    }
-
-    // Recibe el paciente seleccionado en el panel de pacientes
-    public void cargarDatosPaciente(Paciente paciente) {
-        citadnipac.setText(paciente.getDni());
-        lblCita.setText("Citas de " + paciente.getNombre() + " " + paciente.getApellidos());
-        nombrePaciente = paciente.getApellidos() + ", " + paciente.getNombre();
-        limpiaForm();
+    if (citadnipac.getText() != null && !citadnipac.getText().isEmpty()) {
         cargarCitas();
     }
 
-    // Recibe el doctor seleccionado en el panel de doctores
+    }
+    
+    boolean citaexiste = false;
+    String nuevodni = "";   
+
+    // Recibe el paciente seleccionado
+    public void cargarDatosPaciente(Paciente paciente) {
+
+        citadnipac.setText(paciente.getDni());
+        lblCita.setText("Citas Paciente" + "  " + paciente.getApellidos());
+        cargarCitas();
+    }
+
     public void cargarDatosDoctor(Doctor doctor) {
+        // Aquí puedes implementar la lógica para cargar los datos del doctor
+        // seleccionado
+        // Por ejemplo, podrías mostrar el nombre del doctor en un campo de texto
+        // o realizar cualquier otra acción necesaria.
         citaiddoc.setText(String.valueOf(doctor.getID()));
     }
 
-    // Horas de consulta cada 30 minutos, de 09:00 a 14:00 y de 16:00 a 19:30
     private void cargarHorario() {
-        horacita.getItems().clear();
-        for (int h = 9; h < 20; h++) {
-            if (h >= 14 && h < 16) {
-                continue;
-            }
-            horacita.getItems().add(String.format("%02d:00", h));
-            horacita.getItems().add(String.format("%02d:30", h));
+        // Abrimos el fichero JSON que está dentro de resources
+        // usamos la clase de java InputStrem que lee datos en este caso de un fichero
+
+        InputStream is = getClass()
+                .getResourceAsStream("/com/clase/data/horario.json");
+
+        // Leemos el JSON y lo convertimos en un objeto JsonObject
+        JsonObject json = JsonParser.parseReader(
+                new InputStreamReader(is)).getAsJsonObject();
+
+        // Obtenemos el array "provincias" del JSON
+        JsonArray horas = json.getAsJsonArray("horario");
+
+        // Recorremos todas las provincias
+        for (var hora : horas) {
+
+
+            // Obtenemos el nombre de la provincia y lo añadimos al ComboBox
+            horacita.getItems().add(hora.getAsString());
         }
     }
 
+    // hace autoexcluyetes el checkbox
     @FXML
     private void gestionarExclusion(ActionEvent event) {
         CheckBox seleccionado = (CheckBox) event.getSource();
@@ -104,168 +178,167 @@ public class CitasController implements Initializable {
         }
     }
 
-    private String leerEstado() {
-        if (chkpendiente.isSelected()) {
-            return "Pendiente";
-        } else if (chkatendida.isSelected()) {
-            return "Atendida";
-        } else if (chkanulada.isSelected()) {
-            return "Anulada";
-        }
-        return null;
-    }
-
-    private void marcarEstado(String estado) {
-        chkpendiente.setSelected("Pendiente".equals(estado));
-        chkatendida.setSelected("Atendida".equals(estado));
-        chkanulada.setSelected("Anulada".equals(estado));
-    }
-
-    // Limpia los datos de la cita (el paciente y el doctor se mantienen)
-    @FXML
+    @FXML 
     private void limpiaForm() {
-        tablaCitas.getSelectionModel().clearSelection();
-        idcita.clear();
-        fechacita.setValue(null);
-        horacita.setValue(null);
-        motivo.clear();
-        marcarEstado("Pendiente");
-        diagnostico.clear();
-        tratamiento.clear();
+        idcita.setText("");
+        citadnipac.setText("");
+        citaiddoc.setText("");
+        chkanulada.setSelected(false);
+        chkatendida.setSelected(false);
+        chkpendiente.setSelected(false);
+        motivo.setText("");
+        lblCita.setText("CITAS PACIENTE");
+        horacita.getSelectionModel().clearSelection();
+        fechacita.setValue(null); 
+        diagnostico.setText(null);
+        tratamiento.setText(null);
+        tablaCitas.getItems().clear();       
     }
+
+//FUNCION CRUD DE CITAS
 
     @FXML
-    private void guardarCita() {
-        if (citadnipac.getText().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un paciente en la pestaña Pacientes.");
-            return;
+    private void guardarCita() {  
+        String citaiddoctor = citaiddoc.getText();
+        String citadnipaciente = citadnipac.getText();
+        String citamotivo = motivo.getText();
+        LocalDate citafecha = fechacita.getValue();
+        String citahora = horacita.getValue();
+        String citaestado = "";
+        if (chkpendiente.isSelected()) {
+            citaestado = "Pendiente";
+        } else if (chkanulada.isSelected()) {
+            citaestado = "Anulada";
+        } else if (chkatendida.isSelected()) {
+            citaestado = "Atendida";
         }
-        if (citaiddoc.getText().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un doctor en la pestaña Doctores.");
-            return;
-        }
-        if (fechacita.getValue() == null || horacita.getValue() == null || leerEstado() == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Rellena la fecha, la hora y el estado de la cita.");
-            return;
-        }
-
+        String citadiagnostico = diagnostico.getText();
+        String citatratamiento = tratamiento.getText();
+        
+        // Creamos el objeto Cita
         Cita cita = new Cita(
-            citadnipac.getText(),
-            Integer.parseInt(citaiddoc.getText()),
-            fechacita.getValue(),
-            horacita.getValue(),
-            motivo.getText().trim(),
-            diagnostico.getText(),
-            tratamiento.getText(),
-            leerEstado()
-        );
+                citadnipaciente,
+                Integer.parseInt(citaiddoctor),
+                citafecha,
+                citahora,
+                citamotivo,
+                citadiagnostico,
+                citatratamiento,
+                citaestado
+                    );  
+            
+        if (citaexiste) {
+            // Si el Doctor ya existe, lo actualizamos en la base de datos
+                // Si el Doctor no existe, lo guardamos en la base de datos
+            Alert alert3 = new Alert(Alert.AlertType.CONFIRMATION);
+            alert3.setTitle("Aviso");
+            alert3.setHeaderText(null);
+            alert3.setContentText("¿Desea Modificar datos del Cita?");
+            Optional<ButtonType> result2 = alert3.showAndWait();
+            if (result2.isPresent() && result2.get() == ButtonType.OK){
+                CitaDAOMySQL dao = new CitaDAOMySQL();
+                dao.modificarCita(Integer.parseInt(idcita.getText()), cita);
+                citaexiste = false; //importante sino siempre graba
+                Alert alert4 = new Alert(Alert.AlertType.INFORMATION);
+                alert4.setTitle("Aviso");
+                alert4.setHeaderText(null);
+                alert4.setContentText("Cita modificada en Base de Datos");
+                alert4.showAndWait();
 
-        CitaDAOMySQL dao = new CitaDAOMySQL();
-        if (!idcita.getText().isEmpty()) {
-            // La cita ya existe: se modifica
-            if (dao.modificarCita(Integer.parseInt(idcita.getText()), cita)) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Cita modificada correctamente.");
-            } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo modificar la cita. Mira la consola para ver el error.");
+            } else{
                 return;
             }
-        } else {
-            if (dao.guardarCita(cita)) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Cita guardada correctamente.");
-            } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "No se pudo guardar la cita. Mira la consola para ver el error.");
-                return;
-            }
-        }
-        cargarCitas();
+
+            //buscadocid();
+        } else { 
+            System.out.println("Entrando en guardarCita()");
+            // Si la Cita no existe, lo guardamos en la base de datos
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Desea Grabar el Cita?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                {
+                CitaDAOMySQL dao = new CitaDAOMySQL();
+                dao.guardarCita(cita);
+                Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                alert2.setTitle("Aviso");
+                alert2.setHeaderText(null);
+                alert2.setContentText("Cita Guardada en Base de Datos");
+                alert2.showAndWait();
+                } else{
+                    return;
+                }    
+            }  
+        //recargar la tabla con el nuevas Citas
+        cargarCitas(); 
+    }
+    // cargar Doctors en la tabla 
+    @FXML
+    private void cargarCitas() { 
+        nuevodni = citadnipac.getText();
         limpiaForm();
-    }
-
-    // Solo las citas del paciente seleccionado
-    private void cargarCitas() {
-        if (citadnipac.getText().isEmpty()) {
-            tablaCitas.getItems().clear();
-            return;
+        citadnipac.setText(nuevodni);
+        tablaCitas.getItems().clear();
+        CitaDAOMySQL dao = new CitaDAOMySQL(); 
+        // Obtenemos los Doctors de la base de datos 
+        List<Cita> citas = dao.cargarCitaspaciente(String.valueOf(nuevodni)); 
+        System.out.println(citas);
+        // Los mostramos en la tabla 
+        System.out.println(citas.size() + " citas cargadas para el paciente " + citadnipac.getText());
+        tablaCitas.getItems().setAll(citas); 
+        tablaCitas.refresh();
         }
-        CitaDAOMySQL dao = new CitaDAOMySQL();
-        tablaCitas.getItems().setAll(dao.cargarCitaspaciente(citadnipac.getText()));
-    }
 
-    // Rellena el formulario con la cita seleccionada en la tabla
     @FXML
     private void cargarCita() {
         Cita citaSeleccionada = tablaCitas.getSelectionModel().getSelectedItem();
-        if (citaSeleccionada == null) {
-            return;
-        }
+        citaSeleccionada = new CitaDAOMySQL().buscaCitaporId(citaSeleccionada.getIdcita());
+        if (citaSeleccionada != null) {
+            idcita.setText(String.valueOf(citaSeleccionada.getIdcita()));
+            citaiddoc.setText(String.valueOf(citaSeleccionada.getCitaiddoc()));
+            citadnipac.setText(citaSeleccionada.getCitadnipac());
+            motivo.setText(citaSeleccionada.getMotivo());
+            fechacita.setValue(citaSeleccionada.getFechacita());
+            horacita.setValue(citaSeleccionada.getHoracita());
+            diagnostico.setText(citaSeleccionada.getDiagnostico());
+            tratamiento.setText(citaSeleccionada.getTratamiento());
 
-        CitaDAOMySQL dao = new CitaDAOMySQL();
-        Cita cita = dao.buscaCitaporId(citaSeleccionada.getIdcita());
-        if (cita == null) {
-            return;
-        }
+            // Establecer el estado de la cita en los CheckBoxes
+            String estado = citaSeleccionada.getEstadocita();
+            chkatendida.setSelected("Atendida".equals(estado));
+            chkpendiente.setSelected("Pendiente".equals(estado));
+            chkanulada.setSelected("Anulada".equals(estado));
 
-        idcita.setText(String.valueOf(cita.getIdcita()));
-        citaiddoc.setText(String.valueOf(cita.getCitaiddoc()));
-        fechacita.setValue(cita.getFechacita());
-        horacita.setValue(cita.getHoracita());
-        motivo.setText(cita.getMotivo());
-        marcarEstado(cita.getEstadocita());
-        diagnostico.setText(cita.getDiagnostico());
-        tratamiento.setText(cita.getTratamiento());
+            citaexiste = true; // Marcamos que la cita existe para futuras modificaciones
+
+        }
     }
-
-    @FXML
     public void eliminaCita() {
         Cita citaSeleccionada = tablaCitas.getSelectionModel().getSelectedItem();
-        if (citaSeleccionada == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona una cita de la tabla para eliminarla.");
-            return;
-        }
-
-        CitaDAOMySQL dao = new CitaDAOMySQL();
-        if (dao.eliminaCita(citaSeleccionada.getIdcita())) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Cita eliminada correctamente.");
-            cargarCitas();
-            limpiaForm();
+        if (citaSeleccionada != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Está seguro de que desea eliminar la cita seleccionada?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                CitaDAOMySQL dao = new CitaDAOMySQL();
+                dao.eliminaCita(citaSeleccionada.getIdcita());
+                cargarCitas(); // Recargamos la tabla después de eliminar
+                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                infoAlert.setTitle("Información");
+                infoAlert.setHeaderText(null);
+                infoAlert.setContentText("Cita eliminada correctamente.");
+                infoAlert.showAndWait();
+            }
         } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "No se pudo eliminar la cita. Mira la consola para ver el error.");
+            Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+            infoAlert.setTitle("Información");
+            infoAlert.setHeaderText(null);
+            infoAlert.setContentText("Por favor, seleccione una cita para eliminar.");
+            infoAlert.showAndWait();
         }
     }
-
-    // ===================== INFORMES =====================
-
-    // Justificante de la cita seleccionada (informe cita.jrxml con el parámetro IDCITA)
-    @FXML
-    public void imprimirCita() {
-        Cita citaSeleccionada = tablaCitas.getSelectionModel().getSelectedItem();
-        if (citaSeleccionada == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona una cita de la tabla para imprimirla.");
-            return;
-        }
-        Map<String, Object> parametros = new HashMap<>();
-        parametros.put("IDCITA", citaSeleccionada.getIdcita());
-        Informes.mostrar("cita.jrxml", parametros);
-    }
-
-    // Historial de citas del paciente (informe citaspaciente.jrxml con los parámetros DNI y PACIENTE)
-    @FXML
-    public void informeCitasPaciente() {
-        if (citadnipac.getText().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un paciente en la pestaña Pacientes.");
-            return;
-        }
-        Map<String, Object> parametros = new HashMap<>();
-        parametros.put("DNI", citadnipac.getText());
-        parametros.put("PACIENTE", nombrePaciente);
-        Informes.mostrar("citaspaciente.jrxml", parametros);
-    }
-
-    private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle("Xestión Citas");
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
-    }
-}
+ }

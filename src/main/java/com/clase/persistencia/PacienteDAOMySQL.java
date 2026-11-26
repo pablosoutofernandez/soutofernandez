@@ -1,50 +1,48 @@
 package com.clase.persistencia;
 
+import com.clase.modelo.Paciente;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
 import java.util.List;
-
-import com.clase.modelo.Paciente;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class PacienteDAOMySQL implements PacienteDAO {
+    // Implementación de la interfaz PacienteDAO para MySQL
+
     @Override
-    public boolean guardarPaciente(Paciente paciente) {
+    public void guardarPaciente(Paciente paciente) {
 
         String sql = "INSERT INTO pacientes "
-                    + "(dnipac, apelpac, nompac, movilpac, emailpac, nacpac, dirpac, propac, munipac) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(dnipac, apelpac, nompac, movilpac, "
+                + " emailpac, nacpac, "
+                + " dirpac, propac, munipac) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, paciente.getDni());
             ps.setString(2, paciente.getApellidos());
             ps.setString(3, paciente.getNombre());
             ps.setString(4, paciente.getMovil());
             ps.setString(5, paciente.getEmail());
-            if (paciente.getNacimiento() != null) {
-                ps.setDate(6, java.sql.Date.valueOf(paciente.getNacimiento()));
-            } else {
-                ps.setNull(6, Types.DATE);
-            }
+            ps.setDate(6, java.sql.Date.valueOf(paciente.getNacimiento()));
             ps.setString(7, paciente.getDireccion());
             ps.setString(8, paciente.getProvincia());
             ps.setString(9, paciente.getMunicipio());
 
             ps.executeUpdate();
 
-            System.out.println("Paciente guardado correctamente");
-            return true;
+            System.out.println("Paciente guardado correctamente.");
+
         } catch (SQLException e) {
-            System.err.println("Error al guardar el paciente: " + e.getMessage());
-            return false;
+            System.out.println("Error al guardar el paciente: " + e.getMessage());
         }
     }
-     @Override
+    // seleccionar pacientes de la bbdd
+    @Override
     public List<Paciente> cargarPacientes() {
 
         List<Paciente> pacientes = new ArrayList<>();
@@ -76,13 +74,52 @@ public class PacienteDAOMySQL implements PacienteDAO {
         } catch (SQLException e) {
             System.out.println("Error al cargar los pacientes: " + e.getMessage());
         }
-
+        //devuelve los pacientes que hay en la bbdd
         return pacientes;
     }
-    @Override
-    public boolean modificarPaciente(String dniOriginal, Paciente paciente) {
+
+    // Buscar un paciente por DNI
+    public Paciente buscarPaciente(String dni) {
+
+        String sql = "SELECT dnipac, apelpac, nompac, movilpac, "
+                + " emailpac, nacpac, dirpac, propac, munipac "
+                + " FROM pacientes "
+                + " WHERE dnipac = ?";
+
+        try (Connection conexion = ConexionMySQL.getConexion();
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Paciente paciente = new Paciente(
+                            rs.getString("dnipac"),
+                            rs.getString("apelpac"),
+                            rs.getString("nompac"),
+                            rs.getString("movilpac"),
+                            rs.getString("emailpac"),
+                            rs.getDate("nacpac").toLocalDate(),
+                            rs.getString("dirpac"),
+                            rs.getString("propac"),
+                            rs.getString("munipac"));
+
+                    return paciente;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al buscar el paciente: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public void modificarPaciente(String dni, Paciente paciente) {
+
         String sql = "UPDATE pacientes SET "
-                + "dnipac = ?, "
                 + "apelpac = ?, "
                 + "nompac = ?, "
                 + "movilpac = ?, "
@@ -94,40 +131,53 @@ public class PacienteDAOMySQL implements PacienteDAO {
                 + "WHERE dnipac = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, paciente.getDni());
-            ps.setString(2, paciente.getApellidos());
-            ps.setString(3, paciente.getNombre());
-            ps.setString(4, paciente.getMovil());
-            ps.setString(5, paciente.getEmail());
-            if (paciente.getNacimiento() != null) {
-                ps.setDate(6, java.sql.Date.valueOf(paciente.getNacimiento()));
-            } else {
-                ps.setNull(6, Types.DATE);
-            }
-            ps.setString(7, paciente.getDireccion());
-            ps.setString(8, paciente.getProvincia());
-            ps.setString(9, paciente.getMunicipio());
-            ps.setString(10, dniOriginal);
+            ps.setString(1, paciente.getApellidos());
+            ps.setString(2, paciente.getNombre());
+            ps.setString(3, paciente.getMovil());
+            ps.setString(4, paciente.getEmail());
+            ps.setDate(5, java.sql.Date.valueOf(paciente.getNacimiento()));
+            ps.setString(6, paciente.getDireccion());
+            ps.setString(7, paciente.getProvincia());
+            ps.setString(8, paciente.getMunicipio());
 
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
+            // DNI original para localizar el paciente
+            ps.setString(9, dni);
+
+            ps.executeUpdate();
+
+            System.out.println("Paciente modificado correctamente.");
 
         } catch (SQLException e) {
-            System.err.println("Error al modificar el paciente: " + e.getMessage());
-            return false;
+            System.out.println("Error al modificar el paciente: " + e.getMessage());
         }
     }
 
-    @Override
-    public Paciente buscarPaciente(String dni) {
+    public void eliminarPaciente(String dni) {
 
-        // Obtenemos todos los campos de un paciente para rellenar el formulario
-        String sql = "SELECT dnipac, apelpac, nompac, movilpac, emailpac, "
-                + "nacpac, dirpac, propac, munipac "
-                + "FROM pacientes "
-                + "WHERE dnipac = ?";
+        String sql = "DELETE FROM pacientes WHERE dnipac = ?";
+
+        try (Connection conexion = ConexionMySQL.getConexion();
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+
+            ps.executeUpdate();
+
+            System.out.println("Paciente eliminado correctamente.");
+
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar el paciente: " + e.getMessage());
+        }
+    }
+    
+ public Paciente buscaPacdni(String dni) {
+
+        String sql = "SELECT dnipac, apelpac, nompac, movilpac, "
+                + " emailpac, nacpac, dirpac, propac, munipac "
+                + " FROM pacientes "
+                + " WHERE dnipac = ?";
 
         try (Connection conexion = ConexionMySQL.getConexion();
                 PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -135,41 +185,28 @@ public class PacienteDAOMySQL implements PacienteDAO {
             ps.setString(1, dni);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    java.sql.Date nacimiento = rs.getDate("nacpac");
 
-                    return new Paciente(
+                if (rs.next()) {
+
+                    Paciente paciente = new Paciente(
                             rs.getString("dnipac"),
                             rs.getString("apelpac"),
                             rs.getString("nompac"),
                             rs.getString("movilpac"),
                             rs.getString("emailpac"),
-                            nacimiento != null ? nacimiento.toLocalDate() : null,
+                            rs.getDate("nacpac").toLocalDate(),
                             rs.getString("dirpac"),
                             rs.getString("propac"),
                             rs.getString("munipac"));
+
+                    return paciente;
                 }
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al cargar el paciente: " + e.getMessage());
+            System.out.println("Error al buscar el paciente: " + e.getMessage());
         }
 
         return null;
-    }
-
-    @Override
-    public boolean eliminarPaciente(String dni) {
-        String sql = "DELETE FROM pacientes WHERE dnipac = ?";
-        try (Connection conexion = ConexionMySQL.getConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
-            ps.setString(1, dni);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Error al eliminar el paciente: " + e.getMessage());
-            return false;
-        }
     }
 }

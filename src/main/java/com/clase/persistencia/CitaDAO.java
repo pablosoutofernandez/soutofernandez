@@ -1,12 +1,13 @@
 package com.clase.persistencia;
+import com.clase.modelo.Cita;
 import java.util.List;
 
-import com.clase.modelo.Cita;
+//Es la interfaz. Solo dice qué operaciones podemos hacer con un cita, no cómo se hacen.
 
 public interface CitaDAO {
-    boolean guardarCita(Cita cita);
-    boolean modificarCita(Integer id, Cita cita);
+    void guardarCita(Cita cita);
     List<Cita> cargarCitaspaciente(String dnipac);
+    void eliminaCita(Integer id);
     Cita buscaCitaporId (Integer id);
-    boolean eliminaCita(Integer id);
+    void modificarCita(Integer id, Cita cita);
 }

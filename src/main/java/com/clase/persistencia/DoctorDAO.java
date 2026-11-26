@@ -1,12 +1,14 @@
 package com.clase.persistencia;
+import com.clase.modelo.Doctor;
 import java.util.List;
 
-import com.clase.modelo.Doctor;
+//Es la interfaz. Solo dice qué operaciones podemos hacer con un doctor, no cómo se hacen.
 
 public interface DoctorDAO {
-    boolean guardarDoctor(Doctor doctor);
-    List<Doctor> cargarDoctores();
-    boolean modificarDoctor(Integer id, Doctor doctor);
-    boolean eliminarDoctor(Integer id);
-    Doctor buscaDocporId (Integer id);
+void guardarDoctor(Doctor doctor);
+List<Doctor> cargarDoctores();
+void eliminarDoctor(Integer id);
+Doctor buscaDocporId (Integer id);
+void modificarDoctor(Integer id, Doctor doctor);
+List<Doctor> cargardoctoresEspec(String espedoc); 
 }

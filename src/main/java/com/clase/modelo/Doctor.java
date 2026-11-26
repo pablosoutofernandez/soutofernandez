@@ -8,15 +8,22 @@ public class Doctor {
     private String emaildoc;
     private Boolean coledoc;
     private String espedoc;
+  
 
-    // modelo para insertar: el id lo genera la base de datos (AUTO_INCREMENT)
+    //modelo para insertar docientes en la bbdd
     public Doctor(String apeldoc, String nomdoc,
             String movildoc, String emaildoc,
             Boolean coledoc, String espedoc) {
-        this(null, apeldoc, nomdoc, movildoc, emaildoc, coledoc, espedoc);
+    
+        this.apeldoc = apeldoc;
+        this.nomdoc = nomdoc;
+        this.movildoc = movildoc;
+        this.emaildoc = emaildoc;
+        this.coledoc = coledoc;
+        this.espedoc = espedoc;
     }
 
-    // modelo para cargar en el formulario desde la tabla en la bbdd
+    //modelo para cargar en el formulario desde la tabla en la bbdd
     public Doctor(Integer iddoc, String apeldoc, String nomdoc,
             String movildoc, String emaildoc,
             Boolean coledoc, String espedoc) {
@@ -26,6 +33,17 @@ public class Doctor {
         this.movildoc = movildoc;
         this.emaildoc = emaildoc;
         this.coledoc = coledoc;
+        this.espedoc = espedoc;
+    }
+
+    // modelo para la tabla de doctores
+    public Doctor(Integer iddoc, String apeldoc, String nomdoc,
+            String movildoc, String espedoc) {
+
+        this.iddoc = iddoc;
+        this.apeldoc = apeldoc; 
+        this.nomdoc = nomdoc;
+        this.movildoc = movildoc;
         this.espedoc = espedoc;
     }
 
@@ -84,4 +102,5 @@ public class Doctor {
     public void setEspecialidad(String espedoc) {
         this.espedoc = espedoc;
     }
+
 }

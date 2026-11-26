@@ -1,16 +1,17 @@
 package com.clase;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.stage.Stage;
 
 public class AcercadeController {
-
     @FXML
-    private Button btnCerrarAcercade;
+    private void cerrarAcercade(ActionEvent event) {
 
-    @FXML
-    private void cerrarAcercade() {
-        ((Stage) btnCerrarAcercade.getScene().getWindow()).close();
+        Stage stage = (Stage) ((Node) event.getSource())
+                .getScene()
+                .getWindow();
+        stage.close();
     }
 }
