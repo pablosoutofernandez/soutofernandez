@@ -35,6 +35,8 @@
                   <Menu mnemonicParsing="false" text="Informes">
                      <items>
                         <MenuItem mnemonicParsing="false" fx:id="informePacientes" onAction="#informePacientes" text="Informe Pacientes" />
+                        <MenuItem mnemonicParsing="false" fx:id="informeDoctores" onAction="#informeDoctores" text="Informe Doctores" />
+                        <MenuItem mnemonicParsing="false" fx:id="imprimirCita" onAction="#imprimirCita" text="Imprimir Cita" />
                      </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Ayuda">

@@ -2,9 +2,12 @@ package com.clase;
 
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.clase.informes.Informes;
 import com.clase.modelo.Cita;
 import com.clase.modelo.Doctor;
 import com.clase.modelo.Paciente;
@@ -235,6 +238,18 @@ public class CitasController implements Initializable {
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "No se pudo eliminar la cita. Mira la consola para ver el error.");
         }
+    }
+
+    // Justificante de la cita seleccionada (informe cita.jrxml con el parámetro IDCITA)
+    public void imprimirCita() {
+        Cita citaSeleccionada = tablaCitas.getSelectionModel().getSelectedItem();
+        if (citaSeleccionada == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selecciona una cita de la tabla para imprimirla.");
+            return;
+        }
+        Map<String, Object> parametros = new HashMap<>();
+        parametros.put("IDCITA", citaSeleccionada.getIdcita());
+        Informes.mostrar("cita.jrxml", parametros);
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {

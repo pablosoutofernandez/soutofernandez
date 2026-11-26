@@ -1,7 +1,10 @@
 package com.clase;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.clase.informes.Informes;
 import com.clase.informes.imprimirPacientes;
 
 import javafx.application.Platform;
@@ -59,5 +62,20 @@ public class VentanaController {
     @FXML
     private void informePacientes() {
         imprimirPacientes.mostrar();
+    }
+
+    // Listado de doctores agrupado por especialidad.
+    // Si en la pestaña Doctores hay una especialidad elegida en el combo, solo salen esos.
+    @FXML
+    private void informeDoctores() {
+        Map<String, Object> parametros = new HashMap<>();
+        parametros.put("ESPECIALIDAD", panelDoctoresController.getEspecialidadSeleccionada());
+        Informes.mostrar("doctores.jrxml", parametros);
+    }
+
+    // Justificante de la cita seleccionada en la pestaña Citas
+    @FXML
+    private void imprimirCita() {
+        panelCitasController.imprimirCita();
     }
 }

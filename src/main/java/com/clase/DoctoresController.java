@@ -188,6 +188,11 @@ public class DoctoresController implements Initializable {
         cleanFormdoc();
     }
 
+    // Especialidad elegida en el combo (la usa el informe de doctores; null = todas)
+    public String getEspecialidadSeleccionada() {
+        return espedoc.getValue();
+    }
+
     private void cargarDoctors() {
         DoctorDAOMySQL dao = new DoctorDAOMySQL();
         tablaDoctores.getItems().setAll(dao.cargarDoctores());
